@@ -1,0 +1,108 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f4f6f8;
+    color: #333;
+}
+
+.navbar {
+    background-color: #2c3e50;
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar h1 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.navbar nav a {
+    color: white;
+    margin-left: 1.5rem;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.navbar nav a:hover {
+    text-decoration: underline;
+}
+
+main {
+    padding: 2rem;
+}
+
+footer {
+    background-color: #2c3e50;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+
+/*homepage */ 
+
+.hero {
+    background: linear-gradient(to right, #2c3e50, #3498db);
+    color: white;
+    padding: 3rem;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.cta-button {
+    background-color: #f39c12;
+    color: white;
+    padding: 0.7rem 1.5rem;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.cta-button:hover {
+    background-color: #e67e22;
+}
+
+.job-section {
+    padding: 2rem;
+    background-color: #f4f6f8;
+}
+
+.job-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.job-card {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.job-card h3 {
+    margin-top: 0;
+}
+
+.view-button {
+    display: inline-block;
+    margin-top: 0.5rem;
+    color: #3498db;
+    text-decoration: none;
+    font-weight: bold;
+}

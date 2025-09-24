@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h4 class="mb-3">🏢 Create Company Profile</h4>
+  <form method="post" enctype="multipart/form-data" class="row g-3">
+    {% csrf_token %}
+
+    <div class="col-md-6">{{ form.company_name.label_tag }}{{ form.company_name }}</div>
+    <div class="col-md-6">{{ form.owner_name.label_tag }}{{ form.owner_name }}</div>
+    <div class="col-md-6">{{ form.owner_contact.label_tag }}{{ form.owner_contact }}</div>
+    <div class="col-md-6">{{ form.partner_name.label_tag }}{{ form.form.partner_name }}</div>
+    <div class="col-md-6">{{ form.partner_contact.label_tag }}{{ form.partner_contact }}</div>
+    <div class="col-md-6">{{ form.supervisor_name.label_tag }}{{ form.supervisor_name }}</div>
+    <div class="col-md-6">{{ form.supervisor_contact.label_tag }}{{ form.supervisor_contact }}</div>
+    <div class="col-md-6">{{ form.website.label_tag }}{{ form.website }}</div>
+    <div class="col-md-6">{{ form.logo.label_tag }}{{ form.logo }}</div>
+    <div class="col-12">{{ form.head_office_address.label_tag }}{{ form.head_office_address }}</div>
+    
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary btn-sm">Save Company</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

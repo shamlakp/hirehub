@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<div class="hero">
+    <h1>Welcome to HireHub</h1>
+    <p>Your gateway to trusted job opportunities</p>
+    <a href="{% url 'moderator:recruiter_register' %}" class="cta-button">Join as Recruiter</a>
+</div>
+
+<div class="job-section">
+    <h2>Latest Job Listings</h2>
+    <div class="job-list">
+        {% for job in jobs %}
+        <div class="job-card">
+            <h3>{{ job.title }}</h3>
+            <p><strong>Company:</strong> {{ job.company.company_name }}</p>
+            <p><strong>Location:</strong> {{ job.company.head_office_address }}</p>
+            <p><strong>Working Days:</strong> {{ job.working_days }}</p>
+            <p><strong>Time:</strong> {{ job.working_time }}</p>
+            <a href="#" class="view-button">View Details</a>
+        </div>
+        {% empty %}
+        <p>No jobs available at the moment.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

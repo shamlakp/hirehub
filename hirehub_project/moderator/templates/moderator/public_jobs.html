@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Available Job Vacancies</h2>
+<ul>
+  {% for job in jobs %}
+    <li>
+      <strong>{{ job.title }}</strong> at {{ job.company.company_name }}<br>
+      {{ job.working_days }} | {{ job.working_time }}<br>
+      {{ job.qualifications }}
+    </li>
+  {% empty %}
+    <li>No jobs available right now.</li>
+  {% endfor %}
+</ul>
+
+{% endblock %}

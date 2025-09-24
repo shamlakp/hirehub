@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Welcome, {{ request.user.username }}!</h2>
+
+{% if company %}
+<p><strong>Company:</strong> {{ company.company_name }}</p>
+<p><strong>Address:</strong> {{ company.head_office_address }}</p>
+{% else %}
+<p>You haven't created a company profile yet.</p>
+<a href="{% url 'moderator:create_company' %}">Create Company Profile</a>
+{% endif %}
+
+<h3>Your Job Posts</h3>
+<ul>
+    {% for job in jobs %}
+    <li>{{ job.title }} — {{ job.working_days }} / {{ job.working_time }}</li>
+    {% empty %}
+    <li>No jobs posted yet.</li>
+    {% endfor %}
+</ul>
+<a href="{% url 'moderator:create_job' %}">Post a New Job</a>
+{% endblock %}
