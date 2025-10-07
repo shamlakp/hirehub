@@ -23,7 +23,8 @@ class CompanyProfile(models.Model):
 class JobPost(models.Model):
     company = models.ForeignKey(CompanyProfile, on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
-    title = models.CharField(max_length=255)
+    position = models.CharField(max_length=255)
+    location = models.CharField(max_length=100, blank=True)
     responsibilities = models.TextField(blank=True)
     qualifications = models.TextField(blank=True)
     working_time = models.CharField(max_length=100)

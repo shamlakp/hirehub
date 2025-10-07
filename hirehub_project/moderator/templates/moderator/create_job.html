@@ -1,25 +1,42 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container mt-4">
-  <h4 class="mb-3">📝 Post a New Job</h4>
-  <form method="post" class="row g-3">
-    {% csrf_token %}
+  <div class="card p-4 shadow-sm">
+    <h4 class="mb-3">📝 Post Job</h4>
 
-    <div class="col-md-6">{{ form.title.label_tag }}{{ form.title }}</div>
-    <div class="col-md-6">{{ form.working_time.label_tag }}{{ form.working_time }}</div>
-    <div class="col-md-6">{{ form.working_days.label_tag }}{{ form.working_days }}</div>
-    <div class="col-md-6">{{ form.salary.label_tag }}{{ form.salary }}</div>
-    <div class="col-md-6">{{ form.annual_leave.label_tag }}{{ form.annual_leave }}</div>
+    {% if form.errors %}
+      <div class="alert alert-danger">
+        <strong>Form Errors:</strong>
+        <ul>
+          {% for field in form %}
+            {% for error in field.errors %}
+              <li>{{ field.label }}: {{ error }}</li>
+            {% endfor %}
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
 
-    <div class="col-12">{{ form.responsibilities.label_tag }}{{ form.responsibilities }}</div>
-    <div class="col-12">{{ form.qualifications.label_tag }}{{ form.qualifications }}</div>
-    <div class="col-12">{{ form.benefits.label_tag }}{{ form.benefits }}</div>
+    <form method="post" enctype="multipart/form-data" class="row g-3">
+      {% csrf_token %}
+      <div class="col-md-6">{{ form.position.label_tag }}{{ form.position }}</div>
+      <div class="col-md-6">{{ form.location.label_tag }}{{ form.location }}</div>
+      <div class="col-md-6">{{ form.responsibilities.label_tag }}{{ form.responsibilities }}</div>
+      <div class="col-md-6">{{ form.qualifications.label_tag }}{{ form.qualifications }}</div>
+      <div class="col-md-6">{{ form.working_days.label_tag }}{{ form.working_days }}</div>
+      <div class="col-md-6">{{ form.working_time.label_tag }}{{ form.working_time }}</div>
+      <div class="col-md-6">{{ form.salary.label_tag }}{{ form.salary }}</div>
+      <div class="col-md-6">{{ form.annual_leave.label_tag }}{{ form.annual_leave }}</div>
+      <div class="col-md-6">{{ form.benifits.label_tag }}{{ form.benifits }}</div>
+      
+<div class="col-12 text-end mt-3 mb-5">
+  <button type="submit" class="btn btn-primary btn-sm">🚀 Post</button>
+</div>
 
-    <div class="col-12">
-      <button type="submit" class="btn btn-success btn-sm">Submit</button>
-    </div>
-  </form>
+    </form>
+  </div>
 </div>
 {% endblock %}
+
 
 

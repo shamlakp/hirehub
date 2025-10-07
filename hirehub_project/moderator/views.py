@@ -49,14 +49,17 @@ def login_view(request):
 def create_company(request):
     if CompanyProfile.objects.filter(user=request.user).exists():
         return redirect('moderator:recruiter_dashboard')
-    form = CompanyProfileForm()
+
     if request.method == 'POST':
-        form = CompanyProfileForm(request.POST)
+        form = CompanyProfileForm(request.POST, request.FILES)  # ✅ Include request.FILES
         if form.is_valid():
             company = form.save(commit=False)
             company.user = request.user
             company.save()
             return redirect('moderator:recruiter_dashboard')
+    else:
+        form = CompanyProfileForm()
+
     return render(request, 'moderator/create_company.html', {'form': form})
 
 @login_required

@@ -24,14 +24,14 @@ class RecruiterForm(forms.ModelForm):
 class CompanyProfileForm(forms.ModelForm):
     user = forms.ModelChoiceField(
         queryset=CustomUser.objects.filter(user_type='recruiter'),
-        label="Recruiter",
+        label="Owner",
         widget=forms.Select(attrs={'class': 'form-select'})
     )
 
     class Meta:
         model = CompanyProfile
         fields = [
-            'user', 'company_name', 'owner_name', 'owner_contact','website', 'logo',
+             'user','company_name',  'owner_contact','website', 'logo',
              'head_office_address',
              'partner_name', 'partner_contact',
             'supervisor_name', 'supervisor_contact' 
@@ -53,12 +53,13 @@ class JobPostForm(forms.ModelForm):
     class Meta:
         model = JobPost
         fields = [
-            'title', 'responsibilities', 'qualifications',
+            'position', 'location','responsibilities', 'qualifications',
             'working_days', 'working_time', 'salary',
             'annual_leave', 'benefits', 
         ]
-        widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control'}),
+        widgets ={
+            'position': forms.TextInput(attrs={'class': 'form-control'}),
+            'location': forms.TextInput(attrs={'class': 'form-control'}),
             'responsibilities': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'qualifications': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'working_days': forms.TextInput(attrs={'class': 'form-control'}),
