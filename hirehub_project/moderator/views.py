@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect
 from .utils import get_dashboard_url
 from .models import JobPost,CompanyProfile
 from .forms import RecruiterForm,CompanyProfileForm,JobPostForm
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login,logout
 from django.contrib.auth.decorators import login_required
 
 
@@ -44,6 +44,11 @@ def login_view(request):
             return redirect(get_dashboard_url(user))
     return render(request, 'moderator/login.html')       
 
+
+def logout(request):
+    logout(request)
+    messages.success(request, "You have been logged out.")
+    return redirect('homepage')  
 
 @login_required
 def create_company(request):
