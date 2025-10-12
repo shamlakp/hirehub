@@ -1,3 +1,7 @@
+html {
+  scroll-behavior: smooth;
+}
+
 body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
@@ -6,14 +10,47 @@ body {
 }
 
 .navbar {
-    background-color: #2c3e50;
-    color: white;
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: #2c3e50;
+  color: white;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+   
+
+.navbar a {
+  color:black;
+  text-decoration: none;
+  margin-left: 1rem;
+}
+
+.navbar a:hover {
+  color: #f1c40f;
+}
+
+.dot-toggler {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color:black;
+  cursor: pointer;
+}
+
+.dot-toggler:focus,
+.dot-toggler:active {
+  outline: none;
+  box-shadow: none;
+}
+
+.dot-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
 .navbar h1 {
     margin: 0;
     font-size: 1.8rem;
@@ -33,6 +70,19 @@ body {
 main {
     padding: 2rem;
 }
+
+.btn-primary {
+  background-color: #20c997;
+  border-color: #20c997;
+}
+
+.btn-primary:hover {
+  background-color: #17b48a;
+  border-color: #17b48a;
+}
+
+
+
 
 footer {
     background-color: #2c3e50;

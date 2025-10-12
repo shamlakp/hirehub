@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>HireHub</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/style_v2.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -11,19 +11,24 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <nav class="navbar  navbar-light bg-light">
   <div class="container-fluid">
+    <!-- Brand -->
     <a class="navbar-brand" href="/">HireHub</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarMain">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+    <!-- Toggler button -->
+   <button class="dot-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+  <span class="dot-icon">⋮</span>
+</button>
+     
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarContent">
+   
+      <ul class="navbar-nav ms-auto ">
         <li class="nav-item"><a class="nav-link" href="/jobs/">Jobs</a></li>
         <li class="nav-item"><a class="nav-link" href="{% url 'moderator:login' %}">Login</a></li>
-        {% if user.is_authenticated %}
-  <a href="{% url 'moderator:logout' %}" class="btn    btn-outline-danger btn-sm">🚪 Logout</a>
+         {% if user.is_authenticated %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'moderator:logout' %}">Logout</a></li>
+  
   {% endif %}
         {% if user.is_authenticated and user.user_type == 'admin' %}
           <li class="nav-item"><a class="nav-link" href="{% url 'adminpanel:admin_dashboard' %}">Dashboard</a></li>
@@ -35,13 +40,13 @@
               <li><a class="dropdown-item" href="{% url 'adminpanel:add_company' %}">➕ Add Company</a></li>
               <li><a class="dropdown-item" href="{% url 'adminpanel:manage_jobs' %}">📄 Manage Jobs</a></li>
               <li><a class="dropdown-item" href="{% url 'adminpanel:manage_companies' %}">🏢 Manage Companies</a></li>
-        
-        {% endif %}
-        
-      </ul>
+               {% endif %}
+        </ul>
+    
+     
     </div>
   </div>
-        
+</nav>
     </header>
 
     <main>

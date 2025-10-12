@@ -13,7 +13,7 @@
 <h3>Your Job Posts</h3>
 <ul>
     {% for job in jobs %}
-    <li>{{ job.title }} — {{ job.working_days }} / {{ job.working_time }}</li>
+    <li>{{ job.position }} — {{ job.working_days }} / {{ job.working_time }}</li>
     {% empty %}
     <li>No jobs posted yet.</li>
     {% endfor %}

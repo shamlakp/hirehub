@@ -2,8 +2,10 @@ from django.shortcuts import render,redirect
 from .utils import get_dashboard_url
 from .models import JobPost,CompanyProfile
 from .forms import RecruiterForm,CompanyProfileForm,JobPostForm
-from django.contrib.auth import authenticate, login,logout
+from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.core.mail import send_mail
 
 
 def homepage(request):
@@ -25,14 +27,23 @@ def public_job_list(request):
     return render(request, 'moderator/public_jobs.html', {'jobs': jobs})
 
 def recruiter_register(request):
-    form = RecruiterForm()
     if request.method == 'POST':
         form = RecruiterForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            login(request, user) 
+            send_mail(
+                subject='Welcome to HireHub!',
+                message=f'Hi {user.username}, your company account has been created successfully.',
+                from_email='shamlawrk.347@gmail.com',
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
             return redirect('moderator:recruiter_dashboard')
+    else:
+        form = RecruiterForm()
     return render(request, 'moderator/recruiter_register.html', {'form': form})
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -45,10 +56,10 @@ def login_view(request):
     return render(request, 'moderator/login.html')       
 
 
-def logout(request):
+def logout_view(request):
     logout(request)
     messages.success(request, "You have been logged out.")
-    return redirect('homepage')  
+    return redirect('moderator:homepage')  
 
 @login_required
 def create_company(request):
