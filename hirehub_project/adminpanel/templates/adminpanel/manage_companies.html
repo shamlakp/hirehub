@@ -2,33 +2,66 @@
 {% block content %}
 <div class="container mt-4">
   <h2 class="mb-4">🏢 Manage Companies</h2>
+
   <div class="table-responsive">
     <table class="table table-bordered table-hover">
       <thead class="table-light">
         <tr>
           <th>Company Name</th>
-          <th>Owner</th>
+          <th>Email</th>
+          <th>Location</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         {% for company in companies %}
-        <tr>
-          <td>{{ company.company_name }}</td>
-          <td>{{ company.owner_name }}</td>
+        <tr id="company-row-{{ company.id }}">
           <td>
-           <button class="btn btn-danger btn-sm" onclick="deleteCompany('{{ company.id }}')">Delete</button>
-
+            <input type="text" class="form-control" id="name-{{ company.id }}" value="{{ company.company_name }}">
+          </td>
+          <td>
+            <input type="email" class="form-control" id="email-{{ company.id }}" value="{{ company.email }}">
+          </td>
+          <td>
+            <input type="text" class="form-control" id="location-{{ company.id }}" value="{{ company.location }}">
+          </td>
+          <td>
+            <button class="btn btn-sm btn-primary" onclick="editCompany('{{ company.id }}')">Save</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteCompany('{{ company.id }}')">Delete</button>
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="3">No companies found.</td></tr>
+        <tr><td colspan="4">No companies found.</td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 </div>
+
 <script>
+function editCompany(companyId) {
+  const name = document.getElementById(`name-${companyId}`).value;
+  const email = document.getElementById(`email-${companyId}`).value;
+  const location = document.getElementById(`location-${companyId}`).value;
+
+  fetch(`/adminpanel/company/${companyId}/ajax-edit/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': '{{ csrf_token }}',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ company_name: name, email: email, location: location })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      alert("Company updated successfully!");
+    } else {
+      alert("Error: " + JSON.stringify(data.errors || data.error));
+    }
+  });
+}
+
 function deleteCompany(companyId) {
   if (confirm("Are you sure you want to delete this company?")) {
     fetch(`/adminpanel/company/${companyId}/ajax-delete/`, {
@@ -41,8 +74,8 @@ function deleteCompany(companyId) {
     .then(response => response.json())
     .then(data => {
       if (data.success) {
+        document.getElementById(`company-row-${companyId}`).remove();
         alert("Company deleted successfully!");
-        location.reload();
       } else {
         alert("Error: " + data.error);
       }
@@ -50,6 +83,6 @@ function deleteCompany(companyId) {
   }
 }
 </script>
-
-
 {% endblock %}
+
+

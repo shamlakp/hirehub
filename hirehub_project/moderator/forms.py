@@ -26,7 +26,7 @@ class RecruiterForm(forms.ModelForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.user_type = 'recruiter'  # You can customize this per role
+        user.user_type = 'owner'  # You can customize this per role
         if self.cleaned_data['password']:
             user.set_password(self.cleaned_data['password'])
         if commit:

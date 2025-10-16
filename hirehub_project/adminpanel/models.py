@@ -5,7 +5,7 @@ from django.urls import reverse
 class CustomUser(AbstractUser):
     USER_TYPES = (
         ('admin', 'Admin'),
-        ('recruiter', 'Recruiter'),
+        ('owner', 'Owner'),
     )
     user_type = models.CharField(max_length=10, choices=USER_TYPES)
     email = models.EmailField(unique=True)

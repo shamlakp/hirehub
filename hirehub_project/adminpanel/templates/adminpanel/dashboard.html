@@ -30,12 +30,12 @@
 </table>
 
 <!-- Recruiter List Section -->
-<h3>Registered Recruiters</h3>
+<h3>Registered companies</h3>
 <ul>
-    {% for recruiter in recruiters %}
-        <li>{{ recruiter.username }} — {{ recruiter.email }}</li>
+    {% for owner in owners %}
+        <li>{{ owner.username }} — {{ owner.email }}</li>
     {% empty %}
-        <li>No recruiters registered yet.</li>
+        <li>No companies registered yet.</li>
     {% endfor %}
 </ul>
 {% endblock %}

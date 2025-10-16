@@ -11,9 +11,11 @@ urlpatterns = [
      path('company/add/', views.add_company,    name='add_company'),
      path('jobs/', views.manage_jobs, name='manage_jobs'),
      path('companies/', views.manage_companies, name='manage_companies'),
+     path('company/<int:company_id>/ajax-edit/', views.ajax_edit_company, name='ajax_edit_company'),
+     path('company/<int:company_id>/ajax-delete/', views.ajax_delete_company, name='ajax_delete_company'),
      path('job/<int:job_id>/ajax-edit/', views.ajax_edit_job, name='ajax_edit_job'),
      path('job/<int:job_id>/ajax-delete/', views.ajax_delete_job, name='ajax_delete_job'),
-     path('company/<int:company_id>/ajax-delete/', views.ajax_delete_company, name='ajax_delete_company'),
+    
 
 
 ]

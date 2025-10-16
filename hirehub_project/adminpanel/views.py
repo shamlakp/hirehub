@@ -9,17 +9,16 @@ from .decorators import admin_required
 from django.urls import reverse
 from django.http import JsonResponse
 from moderator.forms import JobPostForm, CompanyProfileForm
-from moderator.models import CompanyProfile
 import json
 
 @login_required
 @admin_required
 def admin_dashboard(request):
     jobs = JobPost.objects.all().order_by('-id')
-    recruiters = CustomUser.objects.filter(user_type='recruiter')
+    owners= CustomUser.objects.filter(user_type='owners')
     return render(request, 'adminpanel/dashboard.html', {
         'jobs': jobs,
-        'recruiters': recruiters
+        'owners': owners,
     })
 
 @login_required
@@ -68,18 +67,30 @@ def manage_jobs(request):
     return render(request, 'adminpanel/manage_jobs.html', {'jobs': jobs})
 
 
-   
+
+
+
+
+@csrf_exempt
+@login_required
+def ajax_edit_company(request, company_id):
+    data = json.loads(request.body)
+    company = get_object_or_404(CompanyProfileForm, id=company_id)
+    form = CompanyForm(data, instance=company)
+    if form.is_valid():
+        form.save()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'errors': form.errors})
+
 @csrf_exempt
 @login_required
 def ajax_delete_company(request, company_id):
-    if request.method == 'POST' and request.user.user_type == 'admin':
-        try:
-            company = CompanyProfile.objects.get(id=company_id)
-            company.delete()
-            return JsonResponse({'success': True})
-        except CompanyProfile.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Company not found'})
-    return JsonResponse({'success': False, 'error': 'Invalid request'})
+    company = get_object_or_404(CompanyProfile, id=company_id)
+    company.delete()
+    return JsonResponse({'success': True})
+
+
+
 
 
 
