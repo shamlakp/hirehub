@@ -12,7 +12,8 @@ urlpatterns = [
     path('dashboard/', views.company_dashboard, name='company_dashboard'),
     path('company/create/', views.create_company, name='create_company'),
     path('job/create/', views.create_job, name='create_job'), 
- 
+    path('verify/<uidb64>/<token>/', views.verify_email, name='verify_email'),
+
      ]
 
     

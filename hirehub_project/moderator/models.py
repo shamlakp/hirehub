@@ -20,6 +20,7 @@ class CompanyProfile(models.Model):
     def __str__(self):
         return self.company_name
 
+
 class JobPost(models.Model):
     company = models.ForeignKey(CompanyProfile, on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
@@ -37,6 +38,3 @@ class JobPost(models.Model):
 
     def __str__(self):
         return f"{self.title} at {self.company.company_name}"
-
-
-# Create your models here.

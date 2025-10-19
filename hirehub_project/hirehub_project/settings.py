@@ -121,7 +121,8 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR, "static"]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR / 'media')
- 
+DOMAIN = 'http://shamlashammu.pythonanywhere.com'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
@@ -132,4 +133,5 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'shamlawrk.347@gmail.com'
-EMAIL_HOST_PASSWORD = 'qwyo dvvl ozll ksre'  # Use App Password, not your Gmail password
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+

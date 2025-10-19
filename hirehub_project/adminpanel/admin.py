@@ -1,8 +1,16 @@
 
 from django.contrib import admin
-
 from django.utils.html import format_html
 from moderator.models import CompanyProfile
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+@admin.register(User)
+class CustomUserAdmin(admin.ModelAdmin):
+    list_display = ('username', 'email', 'user_type', 'is_active')
+    list_filter = ('user_type', 'is_active')
+    search_fields = ('username', 'email')
+
 
 @admin.register(CompanyProfile)
 class CompanyProfileAdmin(admin.ModelAdmin):
@@ -10,8 +18,8 @@ class CompanyProfileAdmin(admin.ModelAdmin):
         'company_name', 'user', 'owner_name', 'contact_number', 'website'
     ]
     search_fields = ['company_name', 'owner_name', 'user__username']
-    list_filter = ['user']
-    readonly_fields = ['logo_preview']
+    list_filter = ['user',]
+    readonly_fields = ['logo_preview',]
     fields = [
         'user', 'company_name', 'head_office_address', 'contact_number',
         'owner_name', 'owner_contact',
