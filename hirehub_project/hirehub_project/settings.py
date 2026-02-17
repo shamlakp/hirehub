@@ -137,7 +137,8 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR / 'media')
-DOMAIN = 'http://127.0.0.1:8000'
+DOMAIN = 'https://shamlashammu.pythonanywhere.com'
+CSRF_TRUSTED_ORIGINS = ['https://shamlashammu.pythonanywhere.com']
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
