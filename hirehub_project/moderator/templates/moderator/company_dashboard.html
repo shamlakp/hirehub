@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h3 fw-bold text-dark">Company Dashboard</h2>
+            <p class="text-muted mb-0">Manage your company profile and job listings</p>
+        </div>
+        <a href="{% url 'moderator:create_job' %}" class="btn btn-primary">
+            <span class="me-2">➕</span> Post New Job
+        </a>
+    </div>
+
+    <!-- Company Profile Section -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body">
+            {% if company %}
+            <div class="d-flex align-items-center">
+                <div class="bg-light p-3 rounded-circle me-3">
+                    <span class="fs-4">🏢</span>
+                </div>
+                <div>
+                    <h4 class="h5 fw-bold mb-1">{{ company.company_name }}</h4>
+                    <p class="text-muted mb-0">{{ company.head_office_address }}</p>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <h4 class="h5 fw-bold mb-3">Complete Your Profile</h4>
+                <p class="text-muted mb-3">You need to create a company profile before posting jobs.</p>
+                <a href="{% url 'moderator:create_company' %}" class="btn btn-outline-primary">Create Company
+                    Profile</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Job Posts Section -->
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-white border-bottom py-3">
+            <h3 class="h5 mb-0 fw-bold text-secondary">Your Job Listings</h3>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-container border-0 shadow-none rounded-0">
+                <table class="table mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-bottom-0 text-uppercase text-secondary text-xs ps-4">Position</th>
+                            <th class="border-bottom-0 text-uppercase text-secondary text-xs">Location</th>
+                            <th class="border-bottom-0 text-uppercase text-secondary text-xs">Vacancies</th>
+                            <th class="border-bottom-0 text-uppercase text-secondary text-xs">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for job in jobs %}
+                        <tr>
+                            <td class="align-middle ps-4">
+                                <span class="fw-bold text-dark">{{ job.position }}</span>
+                            </td>
+                            <td class="align-middle">
+                                <span class="text-muted">{{ job.location }}</span>
+                            </td>
+                            <td class="align-middle">
+                                <span class="badge bg-light text-dark border">{{ job.no_of_vacancies }} Openings</span>
+                            </td>
+                            <td class="align-middle">
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'moderator:edit_job' job.id %}"
+                                        class="btn btn-sm btn-outline-secondary">
+                                        ✏️ Edit
+                                    </a>
+                                    <form action="{% url 'moderator:delete_job' job.id %}" method="post"
+                                        onsubmit="return confirm('Are you sure you want to delete this job?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            🗑️ Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center py-5 text-muted">
+                                <div class="d-flex flex-column align-items-center">
+                                    <span class="fs-1 mb-2">📝</span>
+                                    <p class="mb-0">No jobs posted yet.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

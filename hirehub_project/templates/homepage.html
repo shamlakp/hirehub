@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block hero %}
+<div class="container mb-4">
+    <div class="promo-pill d-flex justify-content-between align-items-center">
+        <div><strong>Stop doing everything.</strong> Get access to top talent with Business Plus.</div>
+        <div><a href="#" class="text-decoration-underline">Get offer</a></div>
+    </div>
+</div>
+
+<div id="heroCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+    <!-- ... Carousel existing content ... -->
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true"
+            aria-label="Slide 1"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    </div>
+    <div class="carousel-inner rounded-4 shadow-sm" style="max-height: 500px; overflow: hidden;">
+        <div class="carousel-item active" data-bs-interval="5000">
+            <img src="/static/images/slideshow_office_collab_1766133495578.png" class="d-block w-100"
+                alt="Team Collaboration" style="object-fit: cover; height: 500px; width: 100%;">
+            <div class="carousel-caption d-none d-md-block p-4"
+                style="background: rgba(0,0,0,0.5); border-radius: 12px; backdrop-filter: blur(4px);">
+                <h5 class="fw-bold mb-1">Find Your Dream Team</h5>
+                <p class="mb-0">Connect with top companies hiring now.</p>
+            </div>
+        </div>
+        <div class="carousel-item" data-bs-interval="5000">
+            <img src="/static/images/slideshow_handshake_meeting_1766133515150.png" class="d-block w-100"
+                alt="Partnership" style="object-fit: cover; height: 500px; width: 100%;">
+            <div class="carousel-caption d-none d-md-block p-4"
+                style="background: rgba(0,0,0,0.5); border-radius: 12px; backdrop-filter: blur(4px);">
+                <h5 class="fw-bold mb-1">Build Your Career</h5>
+                <p class="mb-0">Opportunities that match your potential.</p>
+            </div>
+        </div>
+        <div class="carousel-item" data-bs-interval="5000">
+            <img src="/static/images/slideshow_remote_work_1766133534792.png" class="d-block w-100" alt="Remote Work"
+                style="object-fit: cover; height: 500px; width: 100%;">
+            <div class="carousel-caption d-none d-md-block p-4"
+                style="background: rgba(0,0,0,0.5); border-radius: 12px; backdrop-filter: blur(4px);">
+                <h5 class="fw-bold mb-1">Work From Anywhere</h5>
+                <p class="mb-0">Discover remote jobs that fit your lifestyle.</p>
+            </div>
+        </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
+
+<div class="container">
+    <section class="promo-cards mb-5">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <img src="/static/images/card1.jpg" class="card-img-top" alt="">
+                    <div class="card-body">
+                        <h5 class="card-title">Posting jobs is always free</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <img src="/static/images/card2.jpg" class="card-img-top" alt="">
+                    <div class="card-body">
+                        <h5 class="card-title">Get proposals and hire</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <img src="/static/images/card3.jpg" class="card-img-top" alt="">
+                    <div class="card-body">
+                        <h5 class="card-title">Pay when work is done</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 1280px; margin: 0 auto;">
+    <div class="d-flex justify-content-between align-items-end mb-5">
+        <h2 class="h2 fw-bold mb-0">Latest Opportunities</h2>
+        <a href="/jobs/" class="text-decoration-none fw-bold text-dark">View all &rarr;</a>
+    </div>
+
+    <div class="job-list">
+        {% for job in jobs %}
+        <div class="job-card p-4 border-0 shadow-sm rounded-4 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <span class="badge bg-light text-dark mb-2">{{ job.company.company_name }}</span>
+                    <h3 class="h5 fw-bold mb-1">{{ job.title }}</h3>
+                    <p class="text-muted small mb-0">{{ job.company.head_office_address }}</p>
+                </div>
+                <div class="bg-light rounded-circle p-2 d-flex align-items-center justify-content-center"
+                    style="width: 48px; height: 48px;">
+                    🏢
+                </div>
+            </div>
+
+            <div class="d-flex gap-3 mb-4 text-muted small">
+                <span>🗓 {{ job.working_days }}</span>
+                <span>⏰ {{ job.working_time }}</span>
+            </div>
+
+            <a href="#" class="btn btn-secondary w-100 mt-auto">View Details</a>
+        </div>
+        {% empty %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 4rem; color: var(--text-muted);">
+            <p>No jobs available at the moment. Check back soon!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+</div>
+{% endblock %}

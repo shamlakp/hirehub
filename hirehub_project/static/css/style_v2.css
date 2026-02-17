@@ -1,0 +1,1136 @@
+/* Modern Design System - HireHub */
+/* Font import removed for system stack */
+
+:root {
+  /* Color Palette */
+  --primary-color: #4F46E5;
+  /* Indigo 600 */
+  --primary-hover: #4338CA;
+  /* Indigo 700 */
+  --secondary-color: #0EA5E9;
+  /* Sky 500 */
+  --accent-color: #F59E0B;
+  /* Amber 500 */
+  --success-color: #10B981;
+  /* Emerald 500 */
+  --danger-color: #EF4444;
+  /* Red 500 */
+
+  /* Neutral Colors */
+  --bg-body: #FFFFFF;
+  /* Slate 50 -> White */
+  --bg-surface: #FFFFFF;
+  --text-main: #1E293B;
+  /* Slate 800 */
+  --text-muted: #64748B;
+  /* Slate 500 */
+  --border-color: #E2E8F0;
+  /* Slate 200 */
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* Border Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* Transitions */
+  --transition-base: all 0.2s ease-in-out;
+}
+
+/* Reduce base font size site-wide to make typography slightly smaller */
+html {
+  font-size: 13px;
+}
+
+/* Reset & Base Styles */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: var(--transition-base);
+}
+
+ul {
+  list-style: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Layout */
+main {
+  flex: 1;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Navbar */
+.navbar {
+  background-color: var(--bg-body);
+  border-bottom: none;
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: none;
+  /* Removed shadow for seamless look */
+}
+
+/* ... (lines 100-258 remain unchanged, I'm just targeting the blocks I need) ... */
+
+/* Footer */
+footer {
+  background-color: var(--bg-body);
+  border-top: 1px solid var(--border-color);
+  padding: 2rem 0;
+  text-align: center;
+  color: var(--text-muted);
+  margin-top: auto;
+}
+
+.navbar .container-fluid {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+}
+
+.navbar-brand {
+  font-size: 1rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-emphasis-color: transparent;
+  letter-spacing: -0.03em;
+  padding: 0.2rem 0;
+  /* Enhance clickable area visual */
+}
+
+.navbar-brand .brand-label {
+  margin-left: 8px;
+  font-weight: 700;
+}
+
+.navbar-nav {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.nav-link {
+  font-weight: 500;
+  color: var(--text-main) !important;
+  font-size: 0.85rem;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--primary-color) !important;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 2rem;
+  /* Larger buttons */
+  border-radius: 9999px;
+  /* Pill shape */
+  font-weight: 600;
+  transition: var(--transition-base);
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.btn-primary,
+.cta-button {
+  background-color: #000000;
+  /* Black buttons are very modern */
+  color: white !important;
+  box-shadow: none;
+}
+
+.btn-primary:hover,
+.cta-button:hover {
+  background-color: #333333;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary {
+  background-color: #F1F5F9;
+  border: none;
+  color: #1E293B;
+}
+
+.btn-secondary:hover {
+  background-color: #E2E8F0;
+}
+
+/* Modern Small Signup Button */
+.btn-signup {
+  background-color: #0f172a;
+  /* Slate 900 */
+  color: #fff !important;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.25;
+}
+
+.btn-signup:hover {
+  background-color: #1e293b;
+  /* Slate 800 */
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  text-decoration: none;
+}
+
+/* Hero Section */
+.hero {
+  text-align: center;
+  padding: 6rem 1rem;
+  background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%);
+  /* Blue to Violet */
+  border-radius: var(--radius-xl);
+  margin-bottom: 3rem;
+  border: none;
+  color: white;
+  /* Ensure text is white on dark background */
+}
+
+/* Update hero text color overrides since background is dark now */
+.hero h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 1.5rem;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.hero p {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 600px;
+  margin: 0 auto 2.5rem;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 1.5rem;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.hero p {
+  font-size: 1rem;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto 2.5rem;
+}
+
+/* Cards & Grid */
+.job-section h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: var(--text-main);
+  border-left: 5px solid var(--primary-color);
+  padding-left: 1rem;
+}
+
+.job-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.job-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  transition: var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.job-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-color);
+}
+
+.job-card h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-main);
+}
+
+.job-card p {
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.view-button {
+  display: inline-block;
+  margin-top: 1.5rem;
+  color: var(--primary-color);
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.view-button:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+/* Footer */
+footer {
+  background-color: var(--bg-body);
+  border-top: 1px solid transparent;
+  /* seamless */
+  padding: 2rem 0;
+  text-align: center;
+  color: var(--text-muted);
+  margin-top: auto;
+}
+
+/* Site footer (dark) */
+.site-footer {
+  background: #000;
+  color: #fff;
+  padding: 2.25rem 0;
+}
+
+.site-footer a {
+  color: rgba(255, 255, 255, 0.9);
+  transition: color 0.15s ease;
+}
+
+.site-footer a:hover {
+  color: #fff;
+}
+
+.site-footer .social a {
+  font-size: 1.1rem;
+  margin-left: .6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+}
+
+.site-footer .social a:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width:767px) {
+  .site-footer .social a {
+    margin-left: .4rem;
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .navbar-brand {
+    font-size: 1.1rem;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .hero {
+    padding: 3rem 1rem;
+  }
+
+  .navbar-collapse {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100vh;
+    background: white;
+    padding: 80px 1.5rem 2rem;
+    /* Top padding to clear header */
+    border-bottom: none;
+    box-shadow: none;
+    z-index: 999;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  /* Ensure header/nav stays on top */
+  .navbar {
+    z-index: 1001;
+    /* Higher than menu */
+  }
+
+  /* Adjust toggler z-index if needed, but it's inside navbar so it should be fine */
+
+  .navbar-nav {
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    /* Center items for modern mobile look */
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .navbar-nav .nav-link {
+    font-size: 1.25rem;
+    /* Larger text for mobile menu */
+    font-weight: 600;
+  }
+
+  /* Auth links at bottom */
+  .auth-links {
+    margin-top: auto;
+    /* Push to bottom */
+    width: 100%;
+    gap: 1rem;
+    padding-bottom: 2rem;
+  }
+
+  .auth-links .nav-item {
+    width: 100%;
+    text-align: center;
+  }
+
+  .btn-signup {
+    width: 100%;
+    /* Full width button */
+    padding: 1rem;
+    font-size: 1rem;
+  }
+
+  .navbar-nav {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Tables */
+.table-container {
+  overflow-x: auto;
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th {
+  background-color: var(--bg-body);
+  padding: 1rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover td {
+  background-color: var(--bg-body);
+}
+
+/* Authentication Card */
+.auth-container {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.auth-card {
+  background: var(--bg-surface);
+  padding: 2.5rem;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid var(--border-color);
+}
+
+/* Icon-based navbar links: show label only on hover (desktop), show inline on mobile */
+.icon-link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 0.25rem 0.5rem;
+  color: var(--text-main) !important;
+}
+
+.icon-link i {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.icon-label {
+  display: block;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  color: var(--text-muted);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.icon-link:hover .icon-label,
+.icon-link:focus .icon-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* keep dropdown caret visible but keep label hover behavior */
+.nav-item.dropdown .icon-link i {
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .icon-link {
+    flex-direction: row;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .icon-label {
+    opacity: 1;
+    transform: none;
+    font-size: 0.95rem;
+    margin-top: 0;
+  }
+
+  .navbar-nav {
+    gap: 0.5rem;
+  }
+}
+
+/* Brand (icon-only, label on hover) */
+.brand-link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  text-decoration: none;
+  color: inherit;
+  padding: 0.1rem 0.25rem;
+}
+
+.brand-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+  background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.brand-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.brand-link:hover .brand-label,
+.brand-link:focus .brand-label {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .brand-link {
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+
+  .brand-label {
+    opacity: 1;
+    transform: none;
+    font-size: 0.95rem;
+    margin-left: 0.25rem;
+  }
+}
+
+/* Modernize the brand logo (SVG) */
+.brand-logo {
+  width: 40px;
+  height: 40px;
+  display: block;
+  transition: transform 0.18s cubic-bezier(.2, .9, .3, 1), box-shadow 0.18s ease;
+  will-change: transform;
+  box-shadow: 0 4px 10px rgba(16, 24, 40, 0.06);
+  border-radius: 10px;
+}
+
+.brand-link:hover .brand-logo,
+.brand-link:focus .brand-logo {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 10px 20px rgba(16, 24, 40, 0.12);
+}
+
+/* Slightly reduce size on very small screens */
+@media (max-width: 420px) {
+  .brand-logo {
+    width: 34px;
+    height: 34px;
+  }
+}
+
+/* Login icon-button (icon-only on desktop, label on hover; inline on mobile) */
+.login-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #000000, #111111);
+  color: #fff !important;
+  box-shadow: 0 6px 14px rgba(16, 24, 40, 0.08);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+  padding: 0;
+}
+
+.login-link i {
+  font-size: 1.05rem;
+}
+
+.login-link:hover,
+.login-link:focus {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(16, 24, 40, 0.12);
+  background: linear-gradient(90deg, #111111, #333333);
+}
+
+@media (max-width: 768px) {
+  .login-link {
+    width: auto;
+    height: auto;
+    padding: 0.5rem 0.75rem;
+    border-radius: 9999px;
+  }
+
+  .login-link .icon-label {
+    opacity: 1;
+    transform: none;
+    margin-left: 0.5rem;
+  }
+}
+
+.auth-card h4 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  text-align: center;
+  color: var(--text-main);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: var(--transition-base);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-success {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+}
+
+.badge-warning {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--accent-color);
+}
+
+/* App-like List (WhatsApp/Instagram style) */
+.app-list {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: var(--radius-lg);
+  /* Optional: rounded corners for the whole group */
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  /* Subtle lift */
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app-list-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background-color: white;
+  border-bottom: 1px solid var(--border-color);
+  /* Separator line */
+  transition: background-color 0.2s ease;
+  gap: 1rem;
+}
+
+.app-list-item:last-child {
+  border-bottom: none;
+}
+
+.app-list-item:hover {
+  background-color: #F8FAFC;
+  /* Slight hover effect */
+}
+
+/* Avatar / Icon Placeholder */
+.app-list-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  /* Circle */
+  background-color: #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* Content Area */
+.app-list-content {
+  flex: 1;
+  min-width: 0;
+  /* truncate text properly */
+}
+
+.app-list-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-main);
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-list-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Action Area (Right side) */
+.app-list-action {
+  margin-left: auto;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Toggler styles: ensure modern SVG uses current color and sits nicely on the left */
+.navbar .navbar-toggler {
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  padding: 0.125rem;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.navbar .navbar-toggler svg {
+  display: block;
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 10px 20px rgba(16, 24, 40, 0.12);
+}
+
+/* Slightly reduce size on very small screens */
+@media (max-width: 420px) {
+  .brand-logo {
+    width: 34px;
+    height: 34px;
+  }
+}
+
+/* Login icon-button (icon-only on desktop, label on hover; inline on mobile) */
+.login-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #000000, #111111);
+  color: #fff !important;
+  box-shadow: 0 6px 14px rgba(16, 24, 40, 0.08);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+  padding: 0;
+}
+
+.login-link i {
+  font-size: 1.05rem;
+}
+
+.login-link:hover,
+.login-link:focus {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(16, 24, 40, 0.12);
+  background: linear-gradient(90deg, #111111, #333333);
+}
+
+@media (max-width: 768px) {
+  .login-link {
+    width: auto;
+    height: auto;
+    padding: 0.5rem 0.75rem;
+    border-radius: 9999px;
+  }
+
+  .login-link .icon-label {
+    opacity: 1;
+    transform: none;
+    margin-left: 0.5rem;
+  }
+}
+
+.auth-card h4 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  text-align: center;
+  color: var(--text-main);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+  font-family: inherit;
+  font-size: 1rem;
+  transition: var(--transition-base);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* Ensure placeholder is visible, especially for mobile search */
+.form-control::placeholder {
+  color: #94a3b8;
+  /* Slate 400 */
+  opacity: 1;
+  /* Firefox */
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-success {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+}
+
+.badge-warning {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--accent-color);
+}
+
+/* App-like List (WhatsApp/Instagram style) */
+.app-list {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border-radius: var(--radius-lg);
+  /* Optional: rounded corners for the whole group */
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  /* Subtle lift */
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.app-list-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background-color: white;
+  border-bottom: 1px solid var(--border-color);
+  /* Separator line */
+  transition: background-color 0.2s ease;
+  gap: 1rem;
+}
+
+.app-list-item:last-child {
+  border-bottom: none;
+}
+
+.app-list-item:hover {
+  background-color: #F8FAFC;
+  /* Slight hover effect */
+}
+
+/* Avatar / Icon Placeholder */
+.app-list-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  /* Circle */
+  background-color: #E2E8F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* Content Area */
+.app-list-content {
+  flex: 1;
+  min-width: 0;
+  /* truncate text properly */
+}
+
+.app-list-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-main);
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-list-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Action Area (Right side) */
+.app-list-action {
+  margin-left: auto;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Toggler styles: ensure modern SVG uses current color and sits nicely on the left */
+.navbar .navbar-toggler {
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  padding: 0.125rem;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.navbar .navbar-toggler svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  color: inherit;
+}
+
+@media (min-width: 992px) {
+
+  /* hide toggler on large screens if desired (optional) */
+  .navbar .navbar-toggler {
+    display: none;
+  }
+}
+
+/* Mobile Menu Customization */
+@media (max-width: 991.98px) {
+  .mobile-full-menu {
+    position: fixed;
+    top: 72px;
+    /* Approx navbar height */
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 72px);
+    background: white;
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .mobile-full-menu.collapse:not(.show) {
+    display: none;
+  }
+
+  .mobile-full-menu .navbar-nav {
+    width: 100%;
+  }
+
+  /* Push Auth links to bottom */
+  .auth-links {
+    margin-top: auto !important;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .auth-links .nav-item {
+    width: 100%;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  /* Make buttons full width */
+  .auth-links .btn {
+    width: 100%;
+    display: block;
+    padding: 12px;
+    border-radius: 8px;
+    /* Square-ish buttons like image */
+    font-size: 1rem;
+  }
+
+  .auth-links .btn-success {
+    background-color: var(--success-color);
+    /* Green */
+    color: white;
+    font-weight: 700;
+  }
+
+  .auth-links .nav-link {
+    font-size: 1.1rem;
+    padding: 0.75rem 0;
+  }
+
+  .auth-links .nav-link[href*='login'] {
+    /* Style login link as button if desired, or keep as link */
+    /* Upwork has login as outline button often */
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    text-align: center;
+    padding: 12px;
+    font-weight: 600;
+  }
+
+  /* Hide the desktop form on mobile just in case */
+  .mobile-full-menu form {
+    display: none !important;
+  }
+}

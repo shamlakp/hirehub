@@ -1,0 +1,227 @@
+<!DOCTYPE html><!-- Modified -->
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HireHub | Find Your Dream Job</title>
+  <!-- Bootstrap CSS (Optional helper, but relying mostly on custom CSS) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/css/style_v2.css">
+  <style>
+    /* Minimal inline styles to approximate the provided UI */
+    .top-links {
+      font-size: .95rem;
+    }
+
+    .promo-pill {
+      background: linear-gradient(90deg, #dff7e6, #d3f5d2);
+      border-radius: 28px;
+      padding: 14px 22px;
+      margin: 18px 0;
+    }
+
+    .hero {
+      background-image: url('/static/images/hero-placeholder.jpg');
+      background-size: cover;
+      background-position: center;
+      border-radius: 14px;
+      padding: 72px 40px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero .hero-head {
+      font-size: 3.4rem;
+      font-weight: 700;
+      line-height: 1.02;
+    }
+
+    .search-card {
+      background: rgba(0, 0, 0, 0.55);
+      padding: 18px;
+      border-radius: 14px;
+    }
+
+    .promo-cards .card {
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    footer {
+      margin-top: 48px;
+    }
+
+    .navbar-brand .brand-label {
+      font-weight: 700;
+      margin-left: 8px;
+      letter-spacing: 1px;
+    }
+
+    @media (max-width:768px) {
+      .hero .hero-head {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+      <div class="container-fluid">
+        <!-- Toggler with Dynamic Icons -->
+        <button class="navbar-toggler border-0 p-0 me-3" type="button" data-bs-toggle="collapse"
+          data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false"
+          aria-label="Toggle navigation" id="mainToggler">
+          <i class="bi bi-list fs-1" id="icon-menu"></i>
+          <i class="bi bi-x fs-1 d-none" id="icon-close"></i>
+        </button>
+
+        <!-- Brand: modern SVG mark with hover label -->
+        <a class="navbar-brand d-flex align-items-center me-0" href="/" aria-label="HireHub">
+          <!-- Inline SVG logo: simple 'H' mark with gradient and rounded container -->
+          <svg class="brand-logo" width="40" height="40" viewBox="0 0 48 48" fill="none"
+            xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+            <defs>
+              <linearGradient id="gh-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#2563EB" />
+                <stop offset="100%" stop-color="#7C3AED" />
+              </linearGradient>
+            </defs>
+            <rect x="2" y="2" width="44" height="44" rx="10" fill="url(#gh-grad)" opacity="0.98" />
+            <path d="M15 33V15h6v6h6v-6h6v18h-6v-6h-6v6h-6z" fill="white" />
+          </svg>
+          <span class="brand-label">HIREHUB</span>
+        </a>
+
+        <!-- Mobile Sign Up Link (Text Only) - Hidden when menu open? We'll handle via JS or CSS if needed. For now, keep it or replace with Search? 
+             User says "search icon go to left". Let's put Search Icon on Right, and maybe Signup Link is removed? 
+             Let's Add Search Icon next to Signup or instead of it. 
+             "signup go to bottom" -> implies it moves from header to bottom of menu.
+             So let's REMOVE "Sign up" from header and rely on the menu buttons.
+             AND add Search Icon to header. -->
+
+        <!-- Mobile Search Icon -->
+        <a class="nav-link text-dark d-lg-none ms-auto me-3" href="#" id="mobile-search-toggle" aria-label="Search">
+          <i class="bi bi-search fs-4"></i>
+        </a>
+
+        <!-- (Removed Mobile Sign Up Link from Header as it's now at bottom of menu) -->
+
+        <div class="collapse navbar-collapse mobile-full-menu" id="navbarContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0 top-links">
+
+            <li class="nav-item"><a class="nav-link" href="/jobs/">Find work</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Why HireHub</a></li>
+            <li class="nav-item"><a class="nav-link" href="#">Pricing</a></li>
+          </ul>
+
+          <form class="d-none d-lg-flex me-3" role="search" action="/jobs/">
+            <input class="form-control form-control-sm me-2" type="search" placeholder="Search" aria-label="Search"
+              name="q">
+            <button class="btn btn-outline-secondary btn-sm" type="submit"><i class="bi bi-search"></i></button>
+          </form>
+
+          <ul class="navbar-nav mb-2 mb-lg-0 auth-links">
+            {% if user.is_authenticated %}
+            <li class="nav-item d-none d-lg-block"><a class="nav-link" href="#">My Jobs</a></li>
+            <li class="nav-item"><a class="nav-link text-danger" href="{% url 'moderator:logout' %}">Logout</a></li>
+            {% else %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'moderator:login' %}">Log in</a></li>
+            <li class="nav-item"><a class="btn btn-signup ms-2" href="{% url 'moderator:company_register' %}">Sign
+                up</a></li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Mobile Search Container (Hidden by default) -->
+    <div class="container-fluid d-lg-none d-none bg-white py-3 border-bottom shadow-sm" id="mobile-search-container">
+      <form class="d-flex" role="search" action="/jobs/">
+        <div class="input-group">
+          <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+          <input class="form-control border-start-0 bg-light" type="search" placeholder="Search for jobs, companies..."
+            aria-label="Search" name="q">
+          <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main>
+    {% block hero %}{% endblock %}
+
+    <div class="container">
+      {% block content %}
+      <!-- Page-specific content goes here -->
+      {% endblock %}
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <p class="mb-0">&copy; 2025 HireHub. Built for the future of hiring.</p>
+        </div>
+        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+          <div class="social d-inline-flex align-items-center">
+            <a href="#" aria-label="Twitter" title="Twitter" target="_blank" rel="noopener" class="text-white">
+              <i class="bi bi-twitter"></i>
+            </a>
+            <a href="#" aria-label="LinkedIn" title="LinkedIn" target="_blank" rel="noopener" class="text-white">
+              <i class="bi bi-linkedin"></i>
+            </a>
+            <a href="#" aria-label="Facebook" title="Facebook" target="_blank" rel="noopener" class="text-white">
+              <i class="bi bi-facebook"></i>
+            </a>
+            <a href="#" aria-label="Instagram" title="Instagram" target="_blank" rel="noopener" class="text-white">
+              <i class="bi bi-instagram"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const myCollapsible = document.getElementById('navbarContent');
+    const iconMenu = document.getElementById('icon-menu');
+    const iconClose = document.getElementById('icon-close');
+
+    myCollapsible.addEventListener('show.bs.collapse', event => {
+      iconMenu.classList.add('d-none');
+      iconClose.classList.remove('d-none');
+    });
+
+    myCollapsible.addEventListener('hide.bs.collapse', event => {
+      iconMenu.classList.remove('d-none');
+      iconClose.classList.add('d-none');
+    });
+
+    // Mobile Search Toggle
+    const searchToggle = document.getElementById('mobile-search-toggle');
+    const mobileSearch = document.getElementById('mobile-search-container');
+    const mobileSearchInput = mobileSearch ? mobileSearch.querySelector('input') : null;
+
+    if (searchToggle && mobileSearch) {
+      searchToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        mobileSearch.classList.toggle('d-none');
+        if (!mobileSearch.classList.contains('d-none') && mobileSearchInput) {
+          mobileSearchInput.focus();
+        }
+      });
+    }
+  </script>
+</body>
+
+</html>

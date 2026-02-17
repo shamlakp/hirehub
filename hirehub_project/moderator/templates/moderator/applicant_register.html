@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <div class="card p-4 shadow-sm">
+    <h4 class="mb-3">🙋 Applicant Registration</h4>
+    <form method="post" class="row g-3">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="col-12">{{ field.label_tag }}{{ field }}</div>
+      {% endfor %}
+      <div class="col-12 text-end mt-3 mb-5">
+        <button type="submit" class="btn btn-primary btn-sm">Register</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

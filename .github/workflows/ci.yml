@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/hirehub_project/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r hirehub_project/requirements.txt
+
+      - name: Create .env for CI
+        run: |
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+          echo "DEBUG=False" >> .env
+          # Optional secrets used by tests (set in repo secrets if needed)
+          echo "EMAIL_HOST_PASSWORD=${{ secrets.EMAIL_HOST_PASSWORD }}" >> .env
+
+      - name: Run Django migrations
+        working-directory: hirehub_project
+        run: |
+          python manage.py migrate --noinput
+
+      - name: Run backend tests
+        working-directory: hirehub_project
+        run: |
+          python manage.py test --verbosity=2
+
+  frontend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'stable'
+
+      - name: Cache Flutter Pub
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            .pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/hirehub_ui/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Install Flutter deps
+        working-directory: hirehub_ui
+        run: flutter pub get
+
+      - name: Run Flutter tests
+        working-directory: hirehub_ui
+        run: flutter test --coverage
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python for linting
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Run backend linters
+        working-directory: hirehub_project
+        run: |
+          # Optional: add flake8 or other linters to requirements if you want to enable this
+          echo "Skipping linter step (not configured)."
+
+      - name: Setup Flutter for linting
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'stable'
+
+      - name: Run Flutter analyze
+        working-directory: hirehub_ui
+        run: flutter analyze || true

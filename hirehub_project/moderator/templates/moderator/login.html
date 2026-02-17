@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="auth-container">
+  <div class="auth-card">
+    <h4>Welcome Back</h4>
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="username" class="form-label text-muted small fw-bold">Username</label>
+        <input type="text" name="username" id="username" class="form-control" placeholder="Enter your username"
+          required>
+      </div>
+      <div class="mb-3">
+        <label for="email" class="form-label text-muted small fw-bold">Email Address</label>
+        <input type="email" name="email" id="email" class="form-control" placeholder="name@example.com" required>
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label text-muted small fw-bold">Password</label>
+        <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Sign In</button>
+      <div class="text-center mt-3">
+        <small class="text-muted">Don't have an account? <a href="{% url 'moderator:company_register' %}"
+            class="text-primary fw-bold">Register here</a></small>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

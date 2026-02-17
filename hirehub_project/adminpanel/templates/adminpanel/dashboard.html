@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h3 fw-bold text-dark">Dashboard</h2>
+        <span class="badge bg-primary rounded-pill px-3 py-2">Admin Panel</span>
+    </div>
+
+    <!-- Job Posts Section -->
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-white border-bottom py-3">
+            <h3 class="h5 mb-0 fw-bold text-secondary">Job Management</h3>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-container border-0 shadow-none rounded-0">
+                <table class="table mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-bottom-0 text-uppercase text-secondary text-xs ps-4">Position</th>
+                            <th class="border-bottom-0 text-uppercase text-secondary text-xs">Company</th>
+                            <th class="border-bottom-0 text-uppercase text-secondary text-xs">Status</th>
+                            <th class="border-bottom-0 text-uppercase text-secondary text-xs text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for job in jobs %}
+                        <tr>
+                            <td class="align-middle ps-4">
+                                <span class="fw-bold text-dark">{{ job.position }}</span>
+                            </td>
+                            <td class="align-middle">
+                                <span class="text-secondary">{{ job.company.company_name }}</span>
+                            </td>
+                            <td class="align-middle">
+                                {% if job.is_approved %}
+                                <span class="badge badge-success">Approved</span>
+                                {% else %}
+                                <span class="badge badge-warning">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td class="align-middle text-end pe-4">
+                                {% if not job.is_approved %}
+                                <a href="{% url 'adminpanel:approve_job' job.id %}"
+                                    class="btn btn-sm btn-success text-white">
+                                    Approve
+                                </a>
+                                {% else %}
+                                <a href="{% url 'adminpanel:deactivate_job' job.id %}"
+                                    class="btn btn-sm btn-danger text-white">
+                                    Deactivate
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5 text-muted">
+                                <div class="d-flex flex-column align-items-center">
+                                    <span class="fs-1 mb-2">📄</span>
+                                    <p class="mb-0">No job posts found.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4" style="max-width: 800px;">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="h4 fw-bold mb-0">Manage Companies</h2>
+  </div>
+
+  <ul class="app-list">
+    {% for company in companies %}
+    <li class="app-list-item" id="company-row-{{ company.id }}">
+      <div class="app-list-icon" style="background-color: #EEF2FF; color: #4F46E5;">
+        🏢
+      </div>
+      <div class="app-list-content">
+        <div class="mb-1">
+          <input type="text" class="form-control border-0 p-0 fw-bold bg-transparent" id="name-{{ company.id }}"
+            value="{{ company.company_name }}" style="font-size: 1rem;">
+        </div>
+        <div class="d-flex align-items-center text-muted">
+          <input type="email" class="form-control border-0 p-0 bg-transparent text-muted small"
+            id="email-{{ company.id }}" value="{{ company.email }}" style="display: inline-block;">
+        </div>
+        <div class="mt-1">
+          <input type="text" class="form-control border-0 p-0 bg-transparent text-muted small fst-italic"
+            id="location-{{ company.id }}" value="{{ company.location }}" placeholder="Location">
+        </div>
+      </div>
+      <div class="app-list-action">
+        <button class="btn btn-sm btn-light text-primary rounded-circle" onclick="editCompany('{{ company.id }}')"
+          title="Save">
+          💾
+        </button>
+        <button class="btn btn-sm btn-light text-danger rounded-circle" onclick="deleteCompany('{{ company.id }}')"
+          title="Delete">
+          🗑️
+        </button>
+      </div>
+    </li>
+    {% empty %}
+    <li class="app-list-item justify-content-center py-5 text-muted">
+      No companies found.
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<script>
+  function editCompany(companyId) {
+    const name = document.getElementById(`name-${companyId}`).value;
+    const email = document.getElementById(`email-${companyId}`).value;
+    const location = document.getElementById(`location-${companyId}`).value;
+
+    fetch(`/adminpanel/company/${companyId}/ajax-edit/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ company_name: name, email: email, location: location })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert("Company updated successfully!");
+        } else {
+          alert("Error: " + JSON.stringify(data.errors || data.error));
+        }
+      });
+  }
+
+  function deleteCompany(companyId) {
+    if (confirm("Are you sure you want to delete this company?")) {
+      fetch(`/adminpanel/company/${companyId}/ajax-delete/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+          'Content-Type': 'application/json'
+        }
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            document.getElementById(`company-row-${companyId}`).remove();
+            alert("Company deleted successfully!");
+          } else {
+            alert("Error: " + data.error);
+          }
+        });
+    }
+  }
+</script>
+{% endblock %}

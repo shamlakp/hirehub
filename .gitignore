@@ -1,0 +1,54 @@
+# General
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.swp
+.Python
+env/
+.venv/
+venv/
+
+# Local env files (do NOT commit secrets)
+.env
+.env.*
+
+# Django
+db.sqlite3
+media/
+
+# IDEs and editors
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Flutter build outputs (if repo contains flutter app)
+build/
+.flutter-plugins
+.packages
+.pub-cache/
+
+# Secret examples or keystores
+*.jks
+*.keystore
+
+# Additional Secrets and Local Configuration
+**/local.properties
+**/key.properties
+**/*.pem
+**/*.key
+**/google-services.json
+**/GoogleService-Info.plist
+**/client_secret*.json
+**/Generated.xcconfig
+
+# Documentation
+docs/
+*.doc
+*.docx
+*.pdf
