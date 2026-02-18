@@ -1,0 +1,39 @@
+{
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "hirehubpro-52262",
+          "appId": "1:43278493204:android:831d4a08eacfeed2182901",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "hirehubpro-52262",
+          "configurations": {
+            "android": "1:43278493204:android:831d4a08eacfeed2182901",
+            "ios": "1:43278493204:ios:ae32dfada2cefc30182901",
+            "macos": "1:43278493204:ios:ae32dfada2cefc30182901",
+            "web": "1:43278493204:web:239d17a5712a3cc3182901",
+            "windows": "1:43278493204:web:b7706d1515366bee182901"
+          }
+        }
+      }
+    }
+  }
+}

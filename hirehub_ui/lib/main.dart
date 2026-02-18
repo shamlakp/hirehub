@@ -4,8 +4,20 @@ import 'providers/auth_provider.dart';
 import 'providers/job_provider.dart';
 import 'providers/platform_provider.dart';
 import 'screens/splash_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    print('Initializing Firebase...');
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    print('Firebase initialized successfully');
+  } catch (e) {
+    print('Firebase initialization failed: $e');
+  }
   runApp(const HireHubApp());
 }
 

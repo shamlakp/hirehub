@@ -20,7 +20,7 @@ class ApiService {
     _dio = Dio(
       BaseOptions(
         // Use 10.0.2.2 for Android Emulator, 127.0.0.1 for others (Web/Desktop)
-        baseUrl: _getBaseUrl(),
+        baseUrl: getBaseUrl(),
         connectTimeout: const Duration(seconds: 5),
         receiveTimeout: const Duration(seconds: 3),
       ),
@@ -297,26 +297,16 @@ class ApiService {
     }
   }
 
-  static String _getBaseUrl() {
-    // 1. Web handling
+  static String getBaseUrl() {
     if (kIsWeb) {
-      // In web, localhost is often more reliable for CORS preflights in dev
-      return 'http://localhost:8000';
+      if (kDebugMode) return 'http://localhost:8000';
+      return 'https://shamlashammu.pythonanywhere.com';
     }
-
-    // 2. Mobile / Desktop handling
-    try {
-      // Platform is from dart:io, but we only hit this if NOT kIsWeb
-      // though for safety in some Flutter versions/linters, we can use kIsWeb check
-      if (defaultTargetPlatform == TargetPlatform.android) {
-        return 'http://10.0.2.2:8000';
-      }
-    } catch (_) {
-      // Fallback
+    if (defaultTargetPlatform == TargetPlatform.android && kDebugMode) {
+      return 'http://10.0.2.2:8000';
     }
-
-    // Default for iOS Simulator, Windows, macOS, Linux
-    return 'http://127.0.0.1:8000';
+    if (kDebugMode) return 'http://127.0.0.1:8000';
+    return 'https://shamlashammu.pythonanywhere.com';
   }
 
   void _logError(String context, dynamic error) {
