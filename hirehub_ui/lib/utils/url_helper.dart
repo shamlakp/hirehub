@@ -7,12 +7,14 @@ class UrlHelper {
 
   static String getBaseUrl() {
     if (kIsWeb) {
-      return 'http://localhost:8000';
+      if (kDebugMode) return 'http://localhost:8000';
+      return 'https://shamlashammu.pythonanywhere.com';
     }
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return _androidEmulatorUrl;
+    if (defaultTargetPlatform == TargetPlatform.android && kDebugMode) {
+      return 'http://10.0.2.2:8000';
     }
-    return _baseUrl;
+    if (kDebugMode) return 'http://127.0.0.1:8000';
+    return 'https://shamlashammu.pythonanywhere.com';
   }
 
   static Future<void> launchBackendUrl(String path) async {

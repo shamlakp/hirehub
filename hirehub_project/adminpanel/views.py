@@ -145,10 +145,12 @@ class LoginAPI(APIView):
 
 class RegisterAPI(APIView):
     def post(self, request):
-        serializer = CustomUserSerializer(data=request.data)
+        # We use a dedicated recruiter serializer to ensure password hashing and correct user_type
+        from .serializers import RecruiterRegisterSerializer
+        serializer = RecruiterRegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            user.is_active = False
+            user.is_active = False # Require email verification
             user.save()
             from moderator.utils import send_verification_email
             send_verification_email(user)

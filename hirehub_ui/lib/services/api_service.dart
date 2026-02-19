@@ -99,6 +99,13 @@ class ApiService {
   /// Clear token and user data
   Future<void> clearToken() async {
     try {
+      if (_token != null) {
+        try {
+          await _dio.post('/api/logout/');
+        } catch (e) {
+          // If token invalid already, ignore
+        }
+      }
       _token = null;
       await _secureStorage.delete(key: _tokenKey);
       final prefs = await SharedPreferences.getInstance();

@@ -269,6 +269,7 @@ class JobPostViewSet(viewsets.ModelViewSet):
 
 class ApplicantRegisterAPI(APIView):
     def post(self, request):
+        from adminpanel.serializers import ApplicantSerializer
         serializer = ApplicantSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
@@ -278,6 +279,24 @@ class ApplicantRegisterAPI(APIView):
             send_verification_email(user)
             return Response({"message": "Registration successful. Please verify your email."}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class LogoutAPI(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            # Clear Django session if exists (important for web)
+            from django.contrib.auth import logout as django_logout
+            django_logout(request)
+            
+            # Delete DRF token
+            if hasattr(request.user, 'auth_token'):
+                request.user.auth_token.delete()
+                
+            return Response({"message": "Successfully logged out."}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ApplicantProfileAPI(APIView):

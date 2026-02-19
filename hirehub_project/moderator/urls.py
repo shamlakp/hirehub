@@ -31,4 +31,5 @@ urlpatterns += [
     path('api/applicant/register/', views.ApplicantRegisterAPI.as_view(), name='api_applicant_register'),
     path('api/applicant/profile/', views.ApplicantProfileAPI.as_view(), name='api_applicant_profile'),
     path('api/recruiter/profile/', views.RecruiterProfileAPI.as_view(), name='api_recruiter_profile'),
+    path('api/logout/', views.LogoutAPI.as_view(), name='api_logout'),
 ]
