@@ -15,7 +15,7 @@ def send_verification_email(user):
         message=f'Hi {user.username}, click the link to verify your account:\n{verification_link}',
         from_email=getattr(settings, 'EMAIL_HOST_USER', 'noreply@hirehub.com'),
         recipient_list=[user.email],
-        fail_silently=False,
+        fail_silently=True,
     )
 
 def get_dashboard_url(user):

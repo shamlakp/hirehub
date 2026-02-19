@@ -290,13 +290,15 @@ class LogoutAPI(APIView):
             from django.contrib.auth import logout as django_logout
             django_logout(request)
             
-            # Delete DRF token
-            if hasattr(request.user, 'auth_token'):
-                request.user.auth_token.delete()
+            # Delete DRF token safely
+            if request.auth:
+                request.auth.delete()
                 
             return Response({"message": "Successfully logged out."}, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            # Log the error for the developer but don't 500
+            print(f"Logout Error: {e}")
+            return Response({"error": "Logout failed or token already invalid"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ApplicantProfileAPI(APIView):
