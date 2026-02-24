@@ -19,6 +19,17 @@ class CustomUserAdmin(admin.ModelAdmin):
     list_display = ('username', 'email', 'user_type', 'is_active')
     list_filter = ('user_type', 'is_active')
     search_fields = ('username', 'email')
+    actions = ['activate_users', 'deactivate_users']
+
+    def activate_users(self, request, queryset):
+        updated = queryset.update(is_active=True)
+        self.message_user(request, f'{updated} users were successfully activated.')
+    activate_users.short_description = "Activate selected users"
+
+    def deactivate_users(self, request, queryset):
+        updated = queryset.update(is_active=False)
+        self.message_user(request, f'{updated} users were successfully deactivated.')
+    deactivate_users.short_description = "Deactivate selected users"
 
 
 @admin.register(CompanyProfile)

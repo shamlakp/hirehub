@@ -26,6 +26,11 @@ import environ
 env = environ.Env(
     DEBUG=(bool, True)
 )
+
+# Use PyMySQL as a fallback for mysqlclient on Windows to fix SSL errors
+import pymysql
+pymysql.install_as_MySQLdb()
+
 # Read .env file if present
 env.read_env(BASE_DIR / '.env')
 
@@ -93,8 +98,17 @@ WSGI_APPLICATION = 'hirehub_project.wsgi.application'
 # Read database configuration from DATABASE_URL or fall back to sqlite.
 # WARNING: SQLite will not persist on Vercel. Use a cloud database (Postgres) for production.
 DATABASES = {
-    'default': env.db(default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': env('DB_NAME', default='hirehub_db'),
+        'USER': env('DB_USER', default='root'),
+        'PASSWORD': env('DB_PASSWORD', default=''),
+        'HOST': env('DB_HOST', default='127.0.0.1'),
+        'PORT': env('DB_PORT', default='3306'),
+    }
 }
+
+
 
 
 # Password validation
@@ -153,8 +167,9 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 
 # Email settings (use environment variables in production)
-EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
 EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
+
 EMAIL_PORT = env.int('EMAIL_PORT', 587)
 EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', True)
 EMAIL_HOST_USER = 'shamlawrk.347@gmail.com'
