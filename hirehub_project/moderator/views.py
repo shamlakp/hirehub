@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect,reverse, get_object_or_404
 from django.http import HttpResponse # Added
 from .utils import get_dashboard_url
-from .models import JobPost, CompanyProfile, ApplicantProfile # Added ApplicantProfile
+from .models import JobPost, CompanyProfile, ApplicantProfile, JobApplication # Added ApplicantProfile and JobApplication
 from .forms import RecruiterForm, ApplicantForm, CompanyProfileForm, JobPostForm
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
@@ -160,24 +160,24 @@ def verify_email(request, uidb64, token):
 
 @login_required
 def create_company(request):
-    # Only users with type 'recruiter' can create a company profile
+    # Only users with type 'recruiter' can access this
     if request.user.user_type != 'recruiter':
         return redirect('moderator:company_dashboard')
 
-    if CompanyProfile.objects.filter(user=request.user).exists():
-        return redirect('moderator:company_dashboard')
+    # Get existing profile if it exists (e.g., created by signal)
+    company = CompanyProfile.objects.filter(user=request.user).first()
 
     if request.method == 'POST':
-        form = CompanyProfileForm(request.POST, request.FILES)  # ✅ Include request.FILES
+        form = CompanyProfileForm(request.POST, request.FILES, instance=company)
         if form.is_valid():
             company = form.save(commit=False)
             company.user = request.user
             company.save()
             return redirect('moderator:company_dashboard')
     else:
-        form = CompanyProfileForm()
+        form = CompanyProfileForm(instance=company)
 
-    return render(request, 'moderator/create_company.html', {'form': form})
+    return render(request, 'moderator/create_company.html', {'form': form, 'company': company})
 
 
 
@@ -201,7 +201,7 @@ from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import CompanyProfileSerializer, JobPostSerializer
+from .serializers import CompanyProfileSerializer, JobPostSerializer, JobApplicationSerializer
 from adminpanel.serializers import ApplicantSerializer
 
 @login_required
@@ -239,7 +239,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import CompanyProfileSerializer, JobPostSerializer
+from .serializers import CompanyProfileSerializer, JobPostSerializer, JobApplicationSerializer
 from adminpanel.serializers import ApplicantSerializer
 
 class CompanyViewSet(viewsets.ModelViewSet):
@@ -350,3 +350,43 @@ class RecruiterProfileAPI(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class JobApplicationViewSet(viewsets.ModelViewSet):
+    queryset = JobApplication.objects.all()
+    serializer_class = JobApplicationSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.user_type == 'admin':
+            return JobApplication.objects.all()
+        elif user.user_type == 'recruiter':
+            company = CompanyProfile.objects.filter(user=user).first()
+            return JobApplication.objects.filter(job__company=company)
+        elif user.user_type == 'applicant':
+            applicant = ApplicantProfile.objects.filter(user=user).first()
+            return JobApplication.objects.filter(applicant=applicant)
+        return JobApplication.objects.none()
+
+    def perform_create(self, serializer):
+        applicant = ApplicantProfile.objects.filter(user=self.request.user).first()
+        if not applicant:
+            from rest_framework.exceptions import ValidationError
+            raise ValidationError("You must have an Applicant Profile to apply for a job.")
+        
+        # Check if already applied
+        job_id = self.request.data.get('job')
+        if JobApplication.objects.filter(applicant=applicant, job_id=job_id).exists():
+            from rest_framework.exceptions import ValidationError
+            raise ValidationError("You have already applied for this job.")
+            
+        serializer.save(applicant=applicant)
+
+    def perform_update(self, serializer):
+        # Only recruiters and admins can change status
+        user = self.request.user
+        if user.user_type not in ['recruiter', 'admin']:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Only recruiters or administrators can update application status.")
+        serializer.save()

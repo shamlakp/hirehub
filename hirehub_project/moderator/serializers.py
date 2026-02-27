@@ -39,3 +39,19 @@ class ApplicantProfileSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return self.Meta.model.objects.create(**validated_data)
+
+
+class JobApplicationSerializer(serializers.ModelSerializer):
+    job_position = serializers.CharField(source='job.position', read_only=True)
+    company_name = serializers.CharField(source='job.company.company_name', read_only=True)
+    applicant_name = serializers.CharField(source='applicant.user.username', read_only=True)
+
+    class Meta:
+        model = None  # Will be set in __init__
+        fields = '__all__'
+        read_only_fields = ['applied_at', 'applicant']
+
+    def __init__(self, *args, **kwargs):
+        from .models import JobApplication
+        self.Meta.model = JobApplication
+        super().__init__(*args, **kwargs)
