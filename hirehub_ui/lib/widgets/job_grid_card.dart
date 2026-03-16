@@ -20,7 +20,7 @@ class JobGridCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -42,8 +42,8 @@ class JobGridCard extends StatelessWidget {
                   children: [
                     // Small Image/Logo
                     Container(
-                      width: 90,
-                      height: 90,
+                      width: 70,
+                      height: 70,
                       decoration: BoxDecoration(
                         color: Colors.grey[100],
                         borderRadius: BorderRadius.circular(12),
@@ -57,20 +57,20 @@ class JobGridCard extends StatelessWidget {
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
                                   return Center(
-                                    child: Icon(Icons.business, size: 40, color: Colors.grey[400]),
+                                    child: Icon(Icons.business, size: 30, color: Colors.grey[400]),
                                   );
                                 },
                               )
                             : Center(
                                 child: Icon(
                                   Icons.business,
-                                  size: 40,
+                                  size: 30,
                                   color: Colors.grey[400],
                                 ),
                               ),
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 12),
                     // Title and Company
                     Expanded(
                       child: Column(
@@ -79,10 +79,17 @@ class JobGridCard extends StatelessWidget {
                           Text(
                             job.position,
                             style: const TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                             maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            job.companyName,
+                            style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                            maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
@@ -90,39 +97,38 @@ class JobGridCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 // Location
                 Row(
                   children: [
-                    Icon(Icons.location_on_outlined, size: 16, color: Colors.grey[600]),
+                    Icon(Icons.location_on_outlined, size: 14, color: Colors.grey[600]),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         job.location,
-                        style: TextStyle(color: Colors.grey[700], fontSize: 13),
+                        style: TextStyle(color: Colors.grey[700], fontSize: 12),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 // Salary
                 Row(
                   children: [
-                    Icon(Icons.payments_outlined, size: 16, color: Colors.green[700]),
+                    Icon(Icons.payments_outlined, size: 14, color: Colors.green[700]),
                     const SizedBox(width: 4),
                     Text(
                       '\$${job.salary}',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: Colors.green[800],
                       ),
                     ),
                   ],
                 ),
-                const Spacer(),
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(

@@ -1,6 +1,9 @@
 
+import 'package:file_picker/file_picker.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:hirehub_ui/models/job_post.dart';
+import 'package:hirehub_ui/services/api_service.dart';
 import 'package:hirehub_ui/utils/url_helper.dart';
 
 class ApplyJobScreen extends StatefulWidget {
@@ -18,7 +21,21 @@ class _ApplyJobScreenState extends State<ApplyJobScreen> {
   final _phoneController = TextEditingController();
   final _coverLetterController = TextEditingController();
 
-  // TODO: Add Resume Upload logic
+  PlatformFile? _resumeFile;
+  bool _isLoading = false;
+
+  Future<void> _pickResume() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'doc', 'docx'],
+      withData: true,
+    );
+    if (result != null && result.files.isNotEmpty) {
+      setState(() {
+        _resumeFile = result.files.first;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -29,14 +46,47 @@ class _ApplyJobScreenState extends State<ApplyJobScreen> {
     super.dispose();
   }
 
-  void _submitApplication() {
+  // Removed _isLoading since it's now at the top of State
+
+  Future<void> _submitApplication() async {
     if (_formKey.currentState!.validate()) {
-      // TODO: Implement API call to submit application
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Application submitted successfully!')),
-      );
-      Navigator.pop(context); // Go back to details
-      Navigator.pop(context); // Go back to dashboard (optional, maybe stay on details)
+      setState(() => _isLoading = true);
+      try {
+        final apiService = ApiService();
+        await apiService.applyForJob(
+          widget.job.id,
+          notes: _coverLetterController.text,
+          resumeFile: _resumeFile,
+        );
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Application submitted successfully!')),
+          );
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        if (mounted) {
+          String errorMessage = 'Failed to submit application.';
+          if (e is DioException && e.response?.data != null) {
+            final data = e.response!.data;
+            if (data is List && data.isNotEmpty) {
+              errorMessage = data[0].toString();
+            } else if (data is Map && data.containsKey('non_field_errors')) {
+               errorMessage = data['non_field_errors'][0].toString();
+            } else if (data is Map) {
+               errorMessage = data.values.first.toString();
+            }
+          }
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+          );
+        }
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
     }
   }
 
@@ -157,13 +207,26 @@ class _ApplyJobScreenState extends State<ApplyJobScreen> {
                     ),
                     const SizedBox(height: 12),
                     OutlinedButton(
-                      onPressed: () {
-                         ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('File picker not implemented yet')),
-                          );
-                      },
-                      child: const Text('Browse Files'),
+                      onPressed: _pickResume,
+                      child: Text(_resumeFile == null ? 'Browse Files' : 'Change File'),
                     ),
+                    if (_resumeFile != null) ...[
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              _resumeFile!.name,
+                              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -189,7 +252,13 @@ class _ApplyJobScreenState extends State<ApplyJobScreen> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
-                  child: const Text('Submit Application'),
+                  child: _isLoading 
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : const Text('Submit Application'),
                 ),
               ),
             ],
@@ -208,8 +277,6 @@ class _ApplyJobScreenState extends State<ApplyJobScreen> {
   }
 
   String _getImageUrl(String imagePath) {
-    if (imagePath.startsWith('http')) return imagePath;
-    final path = imagePath.startsWith('/') ? imagePath : '/$imagePath';
-    return '${UrlHelper.getBaseUrl()}$path';
+    return UrlHelper.resolveMediaUrl(imagePath);
   }
 }

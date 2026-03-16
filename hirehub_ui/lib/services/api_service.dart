@@ -33,16 +33,20 @@ class ApiService {
           if (kDebugMode) {
             debugPrint('API Request: ${options.method} ${options.path}');
           }
+          
+          // Auto-load token if null
+          if (_token == null) {
+            await loadToken();
+          }
+
           if (_token != null) {
             options.headers['Authorization'] = 'Token $_token';
             if (kDebugMode) {
-              debugPrint(
-                'Authorization header set with token: ${_token!.substring(0, 4)}...',
-              );
+              debugPrint('Authorization header set');
             }
           } else {
             if (kDebugMode) {
-              debugPrint('No token found in ApiService');
+              debugPrint('No token found for request to ${options.path}');
             }
           }
           return handler.next(options);
@@ -188,6 +192,10 @@ class ApiService {
     }
   }
 
+  Future<Response> deleteCompany(int id) async {
+    return _dio.delete('/api/recruiter/profile/', data: {'id': id});
+  }
+
   Future<Response> getJobs() async {
     try {
       final response = await _dio.get('/api/jobs/');
@@ -218,23 +226,39 @@ class ApiService {
 
   Future<Response> updateApplicantProfile(
     Map<String, dynamic> data, [
-    String? resumePath,
+    PlatformFile? resumeFile,
   ]) async {
     try {
       final formData = FormData();
       data.forEach((k, v) {
         formData.fields.add(MapEntry(k, v.toString()));
       });
-      if (resumePath != null) {
-        formData.files.add(
-          MapEntry(
-            'resume',
-            await MultipartFile.fromFile(
-              resumePath,
-              filename: resumePath.split('/').last,
-            ),
-          ),
-        );
+      if (resumeFile != null) {
+        if (kIsWeb) {
+          if (resumeFile.bytes != null) {
+            formData.files.add(
+              MapEntry(
+                'resume',
+                MultipartFile.fromBytes(
+                  resumeFile.bytes!,
+                  filename: resumeFile.name,
+                ),
+              ),
+            );
+          }
+        } else {
+          if (resumeFile.path != null) {
+            formData.files.add(
+              MapEntry(
+                'resume',
+                await MultipartFile.fromFile(
+                  resumeFile.path!,
+                  filename: resumeFile.name,
+                ),
+              ),
+            );
+          }
+        }
       }
       final response = await _dio.patch(
         '/api/applicant/profile/',
@@ -293,13 +317,88 @@ class ApiService {
              }
         }
       }
-      final response = await _dio.patch(
-        '/api/recruiter/profile/',
+      
+      final hasId = data.containsKey('id');
+      final response = hasId 
+        ? await _dio.patch('/api/recruiter/profile/', data: formData)
+        : await _dio.post('/api/recruiter/profile/', data: formData);
+      return response;
+    } catch (e) {
+      _logError('updateRecruiterProfile', e);
+      rethrow;
+    }
+  }
+
+  Future<Response> applyForJob(int jobId, {String? notes, PlatformFile? resumeFile}) async {
+    if (kDebugMode) {
+      debugPrint('ApiService: applyForJob called. Token present: ${_token != null}');
+    }
+    try {
+      final Map<String, dynamic> data = {
+        'job': jobId.toString(),
+        'notes': notes ?? '',
+      };
+
+      final formData = FormData.fromMap(data);
+
+      if (resumeFile != null) {
+        if (kIsWeb) {
+          if (resumeFile.bytes != null) {
+            formData.files.add(
+              MapEntry(
+                'resume',
+                MultipartFile.fromBytes(
+                  resumeFile.bytes!,
+                  filename: resumeFile.name,
+                ),
+              ),
+            );
+          }
+        } else {
+          if (resumeFile.path != null) {
+            formData.files.add(
+              MapEntry(
+                'resume',
+                await MultipartFile.fromFile(
+                  resumeFile.path!,
+                  filename: resumeFile.name,
+                ),
+              ),
+            );
+          }
+        }
+      }
+
+      final response = await _dio.post(
+        '/api/applications/',
         data: formData,
       );
       return response;
     } catch (e) {
-      _logError('updateRecruiterProfile', e);
+      _logError('applyForJob', e);
+      rethrow;
+    }
+  }
+
+  Future<Response> getApplications() async {
+    try {
+      final response = await _dio.get('/api/applications/');
+      return response;
+    } catch (e) {
+      _logError('getApplications', e);
+      rethrow;
+    }
+  }
+
+  Future<Response> updateApplicationStatus(int id, String status) async {
+    try {
+      final response = await _dio.patch(
+        '/api/applications/$id/',
+        data: {'status': status},
+      );
+      return response;
+    } catch (e) {
+      _logError('updateApplicationStatus', e);
       rethrow;
     }
   }
@@ -317,11 +416,11 @@ class ApiService {
   }
 
   void _logError(String context, dynamic error) {
-    print('API Error [$context]: $error');
+    debugPrint('API Error [$context]: $error');
     if (error is DioException) {
-      print('Status: ${error.response?.statusCode}');
-      print('Data: ${error.response?.data}');
-      print('Message: ${error.message}');
+      debugPrint('Status: ${error.response?.statusCode}');
+      debugPrint('Data: ${error.response?.data}');
+      debugPrint('Message: ${error.message}');
     }
   }
 }

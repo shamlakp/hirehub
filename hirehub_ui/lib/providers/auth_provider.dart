@@ -152,10 +152,10 @@ class AuthProvider with ChangeNotifier {
     return null;
   }
 
-  /// Update applicant profile (optionally with resume path)
+  /// Update applicant profile (optionally with resume file)
   Future<bool> updateApplicantProfile(
     Map<String, dynamic> data, [
-    String? resumePath,
+    PlatformFile? resumeFile,
   ]) async {
     _isLoading = true;
     _errorMessage = null;
@@ -163,7 +163,7 @@ class AuthProvider with ChangeNotifier {
     try {
       final response = await _apiService.updateApplicantProfile(
         data,
-        resumePath,
+        resumeFile,
       );
       if (response.statusCode == 200) {
         _isLoading = false;
@@ -182,12 +182,16 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  /// Fetch recruiter profile
-  Future<Map<String, dynamic>?> fetchRecruiterProfile() async {
+  /// Fetch recruiter profiles (returns list of companies)
+  Future<List<Map<String, dynamic>>?> fetchRecruiterProfile() async {
     try {
       final response = await _apiService.getRecruiterProfile();
       if (response.statusCode == 200) {
-        return Map<String, dynamic>.from(response.data as Map<String, dynamic>);
+        final data = response.data;
+        if (data is List) {
+           return List<Map<String, dynamic>>.from(data);
+        }
+        return [Map<String, dynamic>.from(data as Map)];
       }
     } catch (e) {
       _errorMessage = e.toString();
@@ -196,7 +200,7 @@ class AuthProvider with ChangeNotifier {
     return null;
   }
 
-  /// Update recruiter profile
+  /// Update recruiter profile (or create new company)
   Future<bool> updateRecruiterProfile(
     Map<String, dynamic> data, [
     PlatformFile? logoFile,
@@ -209,13 +213,37 @@ class AuthProvider with ChangeNotifier {
         data,
         logoFile,
       );
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         _isLoading = false;
         notifyListeners();
         return true;
       }
       _isLoading = false;
       _errorMessage = 'Update failed';
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = _handleError(e);
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Delete a company profile
+  Future<bool> deleteCompany(int id) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+    try {
+      final response = await _apiService.deleteCompany(id);
+      if (response.statusCode == 200) {
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      }
+      _isLoading = false;
+      _errorMessage = 'Delete failed';
       notifyListeners();
       return false;
     } catch (e) {

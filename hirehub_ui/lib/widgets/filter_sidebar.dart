@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/job_provider.dart';
 
 class FilterSidebar extends StatefulWidget {
   const FilterSidebar({super.key});
@@ -8,6 +10,7 @@ class FilterSidebar extends StatefulWidget {
 }
 
 class _FilterSidebarState extends State<FilterSidebar> {
+  final TextEditingController _locationController = TextEditingController();
   final Map<String, bool> _categories = {
     'IT & Software': false,
     'Healthcare': false,
@@ -17,20 +20,50 @@ class _FilterSidebarState extends State<FilterSidebar> {
     'Sales & Marketing': false,
   };
 
-  final Map<String, bool> _locations = {
-    'UAE': false,
-    'Canada': false,
-  };
-
   final Map<String, bool> _jobTypes = {
     'Full-time': false,
     'Part-time': false,
     'Contract': false,
-    'Temporary': false,
     'Remote': false,
   };
 
-  RangeValues _salaryRange = const RangeValues(30000, 100000);
+  RangeValues _salaryRange = const RangeValues(0, 100000000);
+
+  @override
+  void dispose() {
+    _locationController.dispose();
+    super.dispose();
+  }
+
+  void _applyFilters() {
+    final selectedCategories = _categories.entries
+        .where((e) => e.value)
+        .map((e) => e.key)
+        .toList();
+    
+    final selectedJobTypes = _jobTypes.entries
+        .where((e) => e.value)
+        .map((e) => e.key)
+        .toList();
+
+    context.read<JobProvider>().searchJobs(
+      location: _locationController.text,
+      categories: selectedCategories,
+      jobTypes: selectedJobTypes,
+      minSalary: _salaryRange.start,
+      maxSalary: _salaryRange.end,
+    );
+  }
+
+  void _clearAll() {
+    setState(() {
+      _categories.updateAll((key, value) => false);
+      _jobTypes.updateAll((key, value) => false);
+      _salaryRange = const RangeValues(0, 100000000);
+      _locationController.clear();
+    });
+    context.read<JobProvider>().clearSearch();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +86,7 @@ class _FilterSidebarState extends State<FilterSidebar> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: _clearAll,
                 child: const Text('Clear All', style: TextStyle(fontSize: 12)),
               ),
             ],
@@ -72,17 +105,16 @@ class _FilterSidebarState extends State<FilterSidebar> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: TextField(
+                  controller: _locationController,
                   decoration: InputDecoration(
                     hintText: 'Search Location',
                     prefixIcon: const Icon(Icons.search, size: 20),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                     contentPadding: EdgeInsets.zero,
                   ),
+                  onSubmitted: (_) => _applyFilters(),
                 ),
               ),
-              ..._locations.keys.map((key) => _buildCheckbox(key, _locations[key]!, (val) {
-                setState(() => _locations[key] = val!);
-              })),
             ],
           ),
           const Divider(height: 40),
@@ -92,11 +124,11 @@ class _FilterSidebarState extends State<FilterSidebar> {
               RangeSlider(
                 values: _salaryRange,
                 min: 0,
-                max: 150000,
-                divisions: 15,
+                max: 100000000,
+                divisions: 20,
                 labels: RangeLabels(
-                  '\$${_salaryRange.start.round()}',
-                  '\$${_salaryRange.end.round()}',
+                  _formatSalary(_salaryRange.start),
+                  _formatSalary(_salaryRange.end),
                 ),
                 onChanged: (values) {
                   setState(() => _salaryRange = values);
@@ -107,8 +139,8 @@ class _FilterSidebarState extends State<FilterSidebar> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('\$${_salaryRange.start.round().toString()}'),
-                    Text('\$${_salaryRange.end.round().toString()}+'),
+                    Text(_formatSalary(_salaryRange.start)),
+                    Text('${_formatSalary(_salaryRange.end)}+'),
                   ],
                 ),
               ),
@@ -123,7 +155,7 @@ class _FilterSidebarState extends State<FilterSidebar> {
           ),
           const SizedBox(height: 30),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: _applyFilters,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF0D47A1),
               foregroundColor: Colors.white,
@@ -176,5 +208,13 @@ class _FilterSidebarState extends State<FilterSidebar> {
         ],
       ),
     );
+  }
+  String _formatSalary(double value) {
+    if (value >= 1000000) {
+      return '${(value / 1000000).toStringAsFixed(1)}M';
+    } else if (value >= 1000) {
+      return '${(value / 1000).toStringAsFixed(0)}K';
+    }
+    return value.round().toString();
   }
 }

@@ -6,7 +6,7 @@ import '../providers/platform_provider.dart';
 import '../widgets/job_grid_card.dart';
 import '../widgets/filter_sidebar.dart';
 import '../widgets/hero_search_bar.dart';
-import '../widgets/hirehub_logo.dart';
+import '../widgets/mezban_logo.dart';
 import '../utils/url_helper.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
@@ -14,6 +14,10 @@ import 'applicant_profile_screen.dart';
 import 'create_job_screen.dart';
 import 'job_detail_screen.dart';
 import 'recruiter_profile_screen.dart';
+import 'recruiter_applications_screen.dart';
+import 'applicant_applications_screen.dart';
+import 'recruiter_dashboard_screen.dart';
+import 'applicant_dashboard_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -26,15 +30,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
+    final jobProvider = context.read<JobProvider>();
+    final platformProvider = context.read<PlatformProvider>();
     Future.microtask(() {
-      if (mounted) {
-        context.read<JobProvider>().fetchJobs();
-        context.read<PlatformProvider>().fetchSettings();
-      }
+      jobProvider.fetchJobs();
+      platformProvider.fetchSettings();
     });
   }
 
-  Future<void> _logout(BuildContext context) async {
+  Future<void> _logout() async {
+    final authProvider = context.read<AuthProvider>();
+    final navigator = Navigator.of(context);
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -54,14 +61,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
 
     if (confirmed ?? false) {
-      if (mounted) {
-        await context.read<AuthProvider>().logout();
-        if (mounted) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const LoginScreen()),
-          );
-        }
-      }
+      await authProvider.logout();
+      navigator.pushReplacement(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
     }
   }
 
@@ -75,7 +78,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const HireHubLogo(fontSize: 20),
+        title: const MezbanLogo(fontSize: 28),
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
@@ -129,10 +132,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             if (userType == 'applicant')
               IconButton(
-                icon: const Icon(Icons.person_outline, color: Colors.black87),
+                icon: const Icon(Icons.dashboard_outlined, color: Colors.black87),
                 onPressed: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const ApplicantProfileScreen()),
+                  MaterialPageRoute(builder: (_) => const ApplicantDashboardScreen()),
                 ),
               ),
             if (userType == 'recruiter')
@@ -140,13 +143,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 icon: const Icon(Icons.business_center_outlined, color: Colors.black87), // Distinguish icon
                 onPressed: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const RecruiterProfileScreen()),
+                  MaterialPageRoute(builder: (_) => const RecruiterDashboardScreen()),
                 ),
               ),
             Padding(
               padding: const EdgeInsets.only(right: 8.0),
               child: TextButton(
-                onPressed: () => _logout(context),
+                onPressed: () => _logout(),
                 child: const Text('Logout', style: TextStyle(color: Colors.redAccent)),
               ),
             ),
@@ -221,13 +224,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
-                  value: 'Relevance',
+                  value: provider.currentSort,
                   isDense: true,
                   style: const TextStyle(color: Colors.black87, fontSize: 13),
                   items: ['Relevance', 'Newest First', 'Salary: High to Low']
                       .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                       .toList(),
-                  onChanged: (val) {},
+                  onChanged: (val) {
+                    if (val != null) {
+                      provider.setSort(val);
+                    }
+                  },
                 ),
               ),
             ),
@@ -284,7 +291,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             crossAxisCount: crossAxisCount,
             crossAxisSpacing: 24,
             mainAxisSpacing: 24,
-            childAspectRatio: size.width > 900 ? 2.0 : 1.3,
+            childAspectRatio: size.width > 900 ? 2.0 : 1.0,
           ),
           itemCount: provider.jobs.length,
           itemBuilder: (context, index) {
@@ -324,6 +331,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
             title: const Text('Dashboard'),
             onTap: () => Navigator.pop(context),
           ),
+          if (userType == 'applicant')
+            ListTile(
+              leading: const Icon(Icons.history_outlined),
+              title: const Text('My Applications'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ApplicantApplicationsScreen()),
+                );
+              },
+            ),
+          if (userType == 'recruiter')
+            ListTile(
+              leading: const Icon(Icons.assignment_outlined),
+              title: const Text('Manage Applications'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const RecruiterApplicationsScreen()),
+                );
+              },
+            ),
           if (userType == 'admin') ...[
             const Divider(),
             const Padding(
@@ -364,7 +395,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               title: const Text('Logout'),
               onTap: () {
                 Navigator.pop(context);
-                _logout(context);
+                _logout();
               },
             )
           else

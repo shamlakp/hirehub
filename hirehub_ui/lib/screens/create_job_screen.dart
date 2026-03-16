@@ -5,9 +5,11 @@ import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
 import '../providers/job_provider.dart';
+import '../providers/auth_provider.dart';
 
 class CreateJobScreen extends StatefulWidget {
-  const CreateJobScreen({super.key});
+  final int? selectedCompanyId;
+  const CreateJobScreen({super.key, this.selectedCompanyId});
 
   @override
   State<CreateJobScreen> createState() => _CreateJobScreenState();
@@ -41,6 +43,32 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
   File? _selectedImage;
   String? _webImage; 
   bool _isSubmitting = false;
+  
+  List<Map<String, dynamic>> _companies = [];
+  int? _selectedCompanyId;
+  bool _isLoadingCompanies = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCompanies();
+  }
+
+  Future<void> _loadCompanies() async {
+    final auth = context.read<AuthProvider>();
+    final companies = await auth.fetchRecruiterProfile();
+    if (mounted) {
+      setState(() {
+        _companies = companies ?? [];
+        if (widget.selectedCompanyId != null) {
+          _selectedCompanyId = widget.selectedCompanyId;
+        } else if (_companies.isNotEmpty) {
+          _selectedCompanyId = _companies.first['id'] as int?;
+        }
+        _isLoadingCompanies = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -96,8 +124,9 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
         'accommodation': _accommodationController.text,
         'meals': _mealsController.text,
         'benefits': _benefitsController.text,
+        'company': _selectedCompanyId, // Pass selected company ID
       },
-      imagePath: _selectedImage?.path,
+      imagePath: kIsWeb ? _webImage : _selectedImage?.path,
     );
 
     if (mounted) {
@@ -159,6 +188,34 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
                         ),
                 ),
               ),
+              const SizedBox(height: 24),
+              _buildSectionTitle('Associate Company'),
+              if (_isLoadingCompanies)
+                const Center(child: CircularProgressIndicator())
+              else if (_companies.isEmpty)
+                const Text('No companies found. Create one in your dashboard first.', style: TextStyle(color: Colors.red))
+              else
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey[300]!),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<int>(
+                      value: _selectedCompanyId,
+                      isExpanded: true,
+                      items: _companies.map((c) {
+                        return DropdownMenuItem<int>(
+                          value: c['id'] as int,
+                          child: Text(c['company_name'] ?? 'Unnamed Company'),
+                        );
+                      }).toList(),
+                      onChanged: (val) => setState(() => _selectedCompanyId = val),
+                    ),
+                  ),
+                ),
               const SizedBox(height: 24),
 
               _buildSectionTitle('Job Overview'),

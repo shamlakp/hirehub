@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import '../widgets/hirehub_logo.dart';
+import '../widgets/mezban_logo.dart';
 import 'dashboard_screen.dart';
 import 'register_screen.dart';
 import 'applicant_register_screen.dart';
@@ -67,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 20),
-                const Center(child: HireHubLogo(fontSize: 32)),
+                const Center(child: MezbanLogo(fontSize: 48)),
                 const SizedBox(height: 40),
                 const Text(
                   'Welcome Back',

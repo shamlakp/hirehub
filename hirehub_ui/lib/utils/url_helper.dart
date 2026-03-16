@@ -2,8 +2,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart';
 
 class UrlHelper {
-  static const String _baseUrl = 'http://127.0.0.1:8000';
-  static const String _androidEmulatorUrl = 'http://10.0.2.2:8000';
+
 
   static String getBaseUrl() {
     if (kIsWeb) {
@@ -17,6 +16,21 @@ class UrlHelper {
     return 'https://shamlashammu.pythonanywhere.com';
   }
 
+  static String resolveMediaUrl(String? path) {
+    if (path == null || path.isEmpty) return '';
+    if (path.startsWith('http')) return path;
+    
+    // Ensure it starts with /
+    final formattedPath = path.startsWith('/') ? path : '/$path';
+    
+    String baseUrl = getBaseUrl();
+    if (baseUrl.endsWith('/')) {
+      baseUrl = baseUrl.substring(0, baseUrl.length - 1);
+    }
+    
+    return '$baseUrl$formattedPath';
+  }
+
   static Future<void> launchBackendUrl(String path) async {
     final String fullUrl = '${getBaseUrl()}$path';
     final Uri uri = Uri.parse(fullUrl);
@@ -28,12 +42,10 @@ class UrlHelper {
         mode: LaunchMode.externalApplication,
       );
       if (!success) {
-        // Fallback for some platforms/browsers
         await launchUrl(uri);
       }
     } catch (e) {
       debugPrint('Error launching URL: $e');
-      // Final fallback
       try {
         await launchUrl(uri, mode: LaunchMode.platformDefault);
       } catch (e2) {

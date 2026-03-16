@@ -12,9 +12,9 @@ import 'package:hirehub_ui/main.dart';
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const HireHubApp());
+    await tester.pumpWidget(const MezbanManpowerApp());
 
     // Verify the splash screen shows app name
-    expect(find.text('HireHub'), findsOneWidget);
+    expect(find.text('MEZBAN MANPOWER'), findsOneWidget);
   });
 }

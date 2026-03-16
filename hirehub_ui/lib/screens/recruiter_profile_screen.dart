@@ -7,7 +7,8 @@ import '../providers/auth_provider.dart';
 import '../utils/url_helper.dart';
 
 class RecruiterProfileScreen extends StatefulWidget {
-  const RecruiterProfileScreen({super.key});
+  final Map<String, dynamic>? company;
+  const RecruiterProfileScreen({super.key, this.company});
 
   @override
   State<RecruiterProfileScreen> createState() => _RecruiterProfileScreenState();
@@ -23,6 +24,7 @@ class _RecruiterProfileScreenState extends State<RecruiterProfileScreen> {
   final _recruiterNameController = TextEditingController();
   final _recruiterContactController = TextEditingController();
   
+  String? _companyId;
   PlatformFile? _pickedFile;
   String? _existingLogoUrl;
 
@@ -45,15 +47,17 @@ class _RecruiterProfileScreenState extends State<RecruiterProfileScreen> {
   }
 
   Future<void> _loadProfile() async {
-    final profile = await context.read<AuthProvider>().fetchRecruiterProfile();
+    final profile = widget.company;
+
     if (mounted) {
       if (profile != null) {
-        _companyNameController.text = profile['company_name'] ?? '';
-        _websiteController.text = profile['website'] ?? '';
-        _addressController.text = profile['head_office_address'] ?? '';
-        _recruiterNameController.text = profile['recruiter_name'] ?? '';
-        _recruiterContactController.text = profile['recruiter_contact'] ?? '';
-        _existingLogoUrl = profile['logo'];
+        _companyNameController.text = (profile['company_name'] as String?) ?? '';
+        _websiteController.text = (profile['website'] as String?) ?? '';
+        _addressController.text = (profile['head_office_address'] as String?) ?? '';
+        _recruiterNameController.text = (profile['recruiter_name'] as String?) ?? '';
+        _recruiterContactController.text = (profile['recruiter_contact'] as String?) ?? '';
+        _existingLogoUrl = profile['logo'] as String?;
+        _companyId = profile['id']?.toString();
       }
       setState(() {
         _isLoading = false;
@@ -80,6 +84,10 @@ class _RecruiterProfileScreenState extends State<RecruiterProfileScreen> {
       'recruiter_name': _recruiterNameController.text,
       'recruiter_contact': _recruiterContactController.text,
     };
+
+    if (_companyId != null) {
+      data['id'] = _companyId!;
+    }
 
     final success = await context.read<AuthProvider>().updateRecruiterProfile(
       data,
@@ -132,7 +140,7 @@ class _RecruiterProfileScreenState extends State<RecruiterProfileScreen> {
                             border: Border.all(color: Colors.grey[300]!),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
+                                color: Colors.black.withValues(alpha: 0.05),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
                               ),

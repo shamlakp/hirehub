@@ -15,13 +15,17 @@ class _ApplicantProfileScreenState extends State<ApplicantProfileScreen> {
   final _phone = TextEditingController();
   final _bio = TextEditingController();
   final _skills = TextEditingController();
-  String? _resumePath;
+  PlatformFile? _resumeFile;
 
   Future<void> _pickResume() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.any);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf', 'doc', 'docx'],
+      withData: true,
+    );
     if (result != null && result.files.isNotEmpty) {
       setState(() {
-        _resumePath = result.files.first.path;
+        _resumeFile = result.files.first;
       });
     }
   }
@@ -35,7 +39,7 @@ class _ApplicantProfileScreenState extends State<ApplicantProfileScreen> {
     };
     final success = await context.read<AuthProvider>().updateApplicantProfile(
       data,
-      _resumePath,
+      _resumeFile,
     );
     if (success) {
       if (mounted) {
@@ -107,7 +111,7 @@ class _ApplicantProfileScreenState extends State<ApplicantProfileScreen> {
                       child: const Text('Upload Resume'),
                     ),
                     const SizedBox(width: 12),
-                    Expanded(child: Text(_resumePath ?? 'No file selected')),
+                    Expanded(child: Text(_resumeFile?.name ?? 'No file selected')),
                   ],
                 ),
                 const SizedBox(height: 20),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import 'login_screen.dart';
+import '../widgets/mezban_logo.dart';
 import 'dashboard_screen.dart';
 
 /// Splash screen that checks authentication status on app startup
@@ -34,23 +34,14 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.work, size: 80, color: Color(0xFF673AB7)),
-            const SizedBox(height: 24),
-            const Text(
-              'HireHub',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF673AB7),
-              ),
-            ),
-            const SizedBox(height: 48),
-            const CircularProgressIndicator(
+            MezbanLogo(fontSize: 40, showText: true),
+            SizedBox(height: 48),
+            CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF673AB7)),
             ),
           ],

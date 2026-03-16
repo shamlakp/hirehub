@@ -2,7 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:hirehub_ui/models/job_post.dart';
 import 'package:hirehub_ui/utils/url_helper.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
+import 'login_screen.dart';
 import 'apply_job_screen.dart';
+
 
 class JobDetailScreen extends StatelessWidget {
   final JobPost job;
@@ -42,7 +46,7 @@ class JobDetailScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -140,27 +144,41 @@ class JobDetailScreen extends StatelessWidget {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, -4),
             ),
           ],
         ),
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => ApplyJobScreen(job: job)),
+        child: Consumer<AuthProvider>(
+          builder: (context, auth, child) {
+            return ElevatedButton(
+              onPressed: () {
+                if (!auth.isAuthenticated) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please login to apply for this job')),
+                  );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  );
+                  return;
+                }
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => ApplyJobScreen(job: job)),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0D47A1),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              child: const Text('Apply Now'),
             );
           },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF0D47A1),
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          child: const Text('Apply Now'),
         ),
       ),
     );

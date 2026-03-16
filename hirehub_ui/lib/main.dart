@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/job_provider.dart';
 import 'providers/platform_provider.dart';
+import 'providers/application_provider.dart';
 import 'screens/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -10,19 +11,19 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    print('Initializing Firebase...');
+    debugPrint('Initializing Firebase...');
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    print('Firebase initialized successfully');
+    debugPrint('Firebase initialized successfully');
   } catch (e) {
-    print('Firebase initialization failed: $e');
+    debugPrint('Firebase initialization failed: $e');
   }
-  runApp(const HireHubApp());
+  runApp(const MezbanManpowerApp());
 }
 
-class HireHubApp extends StatelessWidget {
-  const HireHubApp({super.key});
+class MezbanManpowerApp extends StatelessWidget {
+  const MezbanManpowerApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +32,10 @@ class HireHubApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => JobProvider()),
         ChangeNotifierProvider(create: (_) => PlatformProvider()),
+        ChangeNotifierProvider(create: (_) => ApplicationProvider()),
       ],
       child: MaterialApp(
-        title: 'HireHub',
+        title: 'MEZBAN MANPOWER',
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(

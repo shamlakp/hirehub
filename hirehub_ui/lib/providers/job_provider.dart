@@ -12,10 +12,32 @@ class JobProvider with ChangeNotifier {
   String? _errorMessage;
   String _searchKeyword = '';
   String _searchLocation = '';
+  List<String> _searchCategories = [];
+  List<String> _searchJobTypes = [];
+  double _minSalary = 0;
+  double _maxSalary = 100000000; // Reduced to 100M after data cleanup
+  String _currentSort = 'Relevance';
 
-  List<JobPost> get jobs => _filteredJobs.isEmpty && _searchKeyword.isEmpty && _searchLocation.isEmpty 
-      ? _jobs 
-      : _filteredJobs;
+  String get currentSort => _currentSort;
+
+  List<JobPost> get jobs {
+    // Robust null-safety for web hot reload
+    final hasNoKeyword = _searchKeyword == null || _searchKeyword.isEmpty;
+    final hasNoLocation = _searchLocation == null || _searchLocation.isEmpty;
+    final hasNoCategories = _searchCategories == null || _searchCategories.isEmpty;
+    final hasNoJobTypes = _searchJobTypes == null || _searchJobTypes.isEmpty;
+    final hasDefaultSalary = _minSalary == 0 && _maxSalary == 100000000;
+
+    return (_filteredJobs == null || _filteredJobs.isEmpty) && 
+           hasNoKeyword && 
+           hasNoLocation && 
+           hasNoCategories && 
+           hasNoJobTypes &&
+           hasDefaultSalary
+        ? _jobs 
+        : _filteredJobs;
+  }
+  
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
@@ -76,6 +98,7 @@ class JobProvider with ChangeNotifier {
         'accommodation': data['accommodation'] ?? '',
         'meals': data['meals'] ?? '',
         'category': data['category'] ?? '',
+        'company': data['company'], // Include company ID for multi-company support
       };
 
       if (imagePath != null) {
@@ -105,33 +128,115 @@ class JobProvider with ChangeNotifier {
     }
   }
 
-  void searchJobs({String? keyword, String? location}) {
-    _searchKeyword = keyword ?? '';
-    _searchLocation = location ?? '';
+  void searchJobs({
+    String? keyword,
+    String? location,
+    List<String>? categories,
+    List<String>? jobTypes,
+    double? minSalary,
+    double? maxSalary,
+  }) {
+    _searchKeyword = keyword ?? _searchKeyword;
+    _searchLocation = location ?? _searchLocation;
+    _searchCategories = categories ?? _searchCategories;
+    _searchJobTypes = jobTypes ?? _searchJobTypes;
+    _minSalary = minSalary ?? _minSalary;
+    _maxSalary = maxSalary ?? _maxSalary;
 
-    if (_searchKeyword.isEmpty && _searchLocation.isEmpty) {
+    final hasNoKeyword = _searchKeyword == null || _searchKeyword.isEmpty;
+    final hasNoLocation = _searchLocation == null || _searchLocation.isEmpty;
+    final hasNoCategories = _searchCategories == null || _searchCategories.isEmpty;
+    final hasNoJobTypes = _searchJobTypes == null || _searchJobTypes.isEmpty;
+
+    if (hasNoKeyword && 
+        hasNoLocation && 
+        hasNoCategories && 
+        hasNoJobTypes &&
+        _minSalary == 0 && 
+        _maxSalary == 100000000) {
       _filteredJobs = [];
       notifyListeners();
       return;
     }
 
     _filteredJobs = _jobs.where((job) {
-      final matchesKeyword = _searchKeyword.isEmpty ||
+      final matchesKeyword = (_searchKeyword == null || _searchKeyword.isEmpty) ||
           job.position.toLowerCase().contains(_searchKeyword.toLowerCase()) ||
           job.companyName.toLowerCase().contains(_searchKeyword.toLowerCase());
 
-      final matchesLocation = _searchLocation.isEmpty ||
+      final matchesLocation = (_searchLocation == null || _searchLocation.isEmpty) ||
           job.location.toLowerCase().contains(_searchLocation.toLowerCase());
 
-      return matchesKeyword && matchesLocation;
+      // Helper to normalize strings for comparison (remove spaces/hyphens and lowercase)
+      String normalize(String s) => s.toLowerCase().replaceAll(RegExp(r'[\s-]'), '');
+
+      final matchesCategory = (_searchCategories == null || _searchCategories.isEmpty) || 
+          _searchCategories.any((cat) => 
+            normalize(job.category).contains(normalize(cat)) || 
+            normalize(cat).contains(normalize(job.category))
+          );
+
+      final matchesJobType = (_searchJobTypes == null || _searchJobTypes.isEmpty) ||
+          _searchJobTypes.any((type) => 
+            normalize(job.workingTime).contains(normalize(type)) ||
+            normalize(type).contains(normalize(job.workingTime))
+          );
+
+      // Parse salary safely
+      double salaryValue = 0;
+      try {
+        salaryValue = double.parse(job.salary.replaceAll(RegExp(r'[^0-9.]'), ''));
+      } catch (_) {}
+
+      final matchesSalary = salaryValue >= _minSalary && salaryValue <= _maxSalary;
+
+      return matchesKeyword && matchesLocation && matchesCategory && matchesJobType && matchesSalary;
     }).toList();
 
+    _applySort();
     notifyListeners();
+  }
+
+  void setSort(String criteria) {
+    _currentSort = criteria;
+    _applySort();
+    notifyListeners();
+  }
+
+  void _applySort() {
+    if (_currentSort == 'Newest First') {
+      _jobs.sort((a, b) => b.id.compareTo(a.id));
+      if (_filteredJobs.isNotEmpty) {
+        _filteredJobs.sort((a, b) => b.id.compareTo(a.id));
+      }
+    } else if (_currentSort == 'Salary: High to Low') {
+      double getSalary(JobPost j) {
+        try {
+          return double.parse(j.salary.replaceAll(RegExp(r'[^0-9.]'), ''));
+        } catch (_) {
+          return 0;
+        }
+      }
+      _jobs.sort((a, b) => getSalary(b).compareTo(getSalary(a)));
+      if (_filteredJobs.isNotEmpty) {
+        _filteredJobs.sort((a, b) => getSalary(b).compareTo(getSalary(a)));
+      }
+    } else {
+      // Relevance/Default - usually by ID or original order
+      _jobs.sort((a, b) => b.id.compareTo(a.id));
+      if (_filteredJobs.isNotEmpty) {
+        _filteredJobs.sort((a, b) => b.id.compareTo(a.id));
+      }
+    }
   }
 
   void clearSearch() {
     _searchKeyword = '';
     _searchLocation = '';
+    _searchCategories = [];
+    _searchJobTypes = [];
+    _minSalary = 0;
+    _maxSalary = 100000000;
     _filteredJobs = [];
     notifyListeners();
   }
