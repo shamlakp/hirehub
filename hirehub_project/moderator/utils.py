@@ -11,9 +11,9 @@ def send_verification_email(user):
     verification_link = f"{settings.DOMAIN}/verify/{uid}/{token}/"
     
     send_mail(
-        subject='Verify your HireHub account',
+        subject='Verify your MEZBAN MANPOWER account',
         message=f'Hi {user.username}, click the link to verify your account:\n{verification_link}',
-        from_email=getattr(settings, 'EMAIL_HOST_USER', 'noreply@hirehub.com'),
+        from_email=getattr(settings, 'EMAIL_HOST_USER', 'noreply@mezbanmanpower.com'),
         recipient_list=[user.email],
         fail_silently=True,
     )
@@ -34,7 +34,7 @@ def notify_admin_on_login(user):
     if admin_email:
         send_mail(
             subject=f'Login Alert: {user.username}',
-            message=f'User {user.username} ({user.user_type}) has just logged into HireHub.',
+            message=f'User {user.username} ({user.user_type}) has just logged into MEZBAN MANPOWER.',
             from_email=admin_email,
             recipient_list=[admin_email],
             fail_silently=True,

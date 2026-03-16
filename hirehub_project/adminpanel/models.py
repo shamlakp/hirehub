@@ -18,7 +18,7 @@ class CustomUser(AbstractUser):
 class PlatformSettings(models.Model):
     phone_number = models.CharField(max_length=20, default="+91 0000000000")
     whatsapp_number = models.CharField(max_length=20, default="+91 0000000000")
-    email = models.EmailField(default="contact@hirehub.com")
+    email = models.EmailField(default="contact@mezbanmanpower.com")
     address = models.TextField(blank=True)
     whatsapp_link = models.URLField(blank=True, help_text="Direct link for WhatsApp chat")
 

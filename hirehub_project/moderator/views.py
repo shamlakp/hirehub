@@ -233,7 +233,7 @@ def delete_job(request, job_id):
     return redirect('moderator:company_dashboard')
 
 
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import viewsets, status
@@ -251,7 +251,7 @@ class JobPostViewSet(viewsets.ModelViewSet):
     queryset = JobPost.objects.all().order_by('-created_at')
     serializer_class = JobPostSerializer
     authentication_classes = [TokenAuthentication]
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
@@ -259,11 +259,19 @@ class JobPostViewSet(viewsets.ModelViewSet):
         return []
 
     def perform_create(self, serializer):
+        print(f"DEBUG: JobPost create data: {self.request.data}")
         # Automatically assign the recruiter's company to the job post
-        company = CompanyProfile.objects.filter(user=self.request.user).first()
+        # If multiple companies, we should get the company_id from request data
+        company_id = self.request.data.get('company')
+        if not company_id:
+            # Fallback to the first company if not specified (legacy behavior)
+            company = CompanyProfile.objects.filter(user=self.request.user).first()
+        else:
+            company = CompanyProfile.objects.filter(id=company_id, user=self.request.user).first()
+
         if not company:
             from rest_framework.exceptions import ValidationError
-            raise ValidationError("You must create a Company Profile before posting a job.")
+            raise ValidationError("You must choose a Company Profile you own before posting a job.")
         serializer.save(company=company)
 
 
@@ -304,7 +312,7 @@ class LogoutAPI(APIView):
 class ApplicantProfileAPI(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get(self, request):
         profile, _ = ApplicantProfile.objects.get_or_create(user=request.user)
@@ -313,6 +321,7 @@ class ApplicantProfileAPI(APIView):
         return Response(serializer.data)
 
     def patch(self, request):
+        print(f"DEBUG: ApplicantProfile patch data: {request.data}")
         profile, _ = ApplicantProfile.objects.get_or_create(user=request.user)
         from .serializers import ApplicantProfileSerializer
         serializer = ApplicantProfileSerializer(profile, data=request.data, partial=True)
@@ -322,28 +331,41 @@ class ApplicantProfileAPI(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-
-
-    
 class RecruiterProfileAPI(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get(self, request):
-        company, _ = CompanyProfile.objects.get_or_create(user=request.user)
-        # Handle case where company name might not be set initially
-        if not company.company_name:
-             company.company_name = f"{request.user.username} Company"
-             company.save()
+        companies = CompanyProfile.objects.filter(user=request.user)
+        # If no companies exist, create a default one (fallback)
+        if not companies.exists():
+            default_company = CompanyProfile.objects.create(
+                user=request.user,
+                company_name=f"{request.user.username} Company"
+            )
+            companies = [default_company]
              
         from .serializers import CompanyProfileSerializer
-        serializer = CompanyProfileSerializer(company)
+        serializer = CompanyProfileSerializer(companies, many=True)
         return Response(serializer.data)
 
+    def post(self, request):
+        """Create a new company profile for this recruiter."""
+        from .serializers import CompanyProfileSerializer
+        serializer = CompanyProfileSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def patch(self, request):
-        company, _ = CompanyProfile.objects.get_or_create(user=request.user)
+        """Update a specific company profile."""
+        company_id = request.data.get('id')
+        if not company_id:
+            return Response({"error": "Company ID required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        company = get_object_or_404(CompanyProfile, id=company_id, user=request.user)
         from .serializers import CompanyProfileSerializer
         serializer = CompanyProfileSerializer(company, data=request.data, partial=True)
         if serializer.is_valid():
@@ -351,11 +373,22 @@ class RecruiterProfileAPI(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request):
+        """Delete a specific company profile."""
+        company_id = request.data.get('id')
+        if not company_id:
+            return Response({"error": "Company ID required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        company = get_object_or_404(CompanyProfile, id=company_id, user=request.user)
+        company.delete()
+        return Response({"message": "Company deleted"}, status=status.HTTP_200_OK)
+
 class JobApplicationViewSet(viewsets.ModelViewSet):
     queryset = JobApplication.objects.all()
     serializer_class = JobApplicationSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_queryset(self):
         user = self.request.user
@@ -370,6 +403,7 @@ class JobApplicationViewSet(viewsets.ModelViewSet):
         return JobApplication.objects.none()
 
     def perform_create(self, serializer):
+        print(f"DEBUG: JobApplication create data: {self.request.data}")
         applicant = ApplicantProfile.objects.filter(user=self.request.user).first()
         if not applicant:
             from rest_framework.exceptions import ValidationError

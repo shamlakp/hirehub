@@ -4,7 +4,7 @@ from django.utils import timezone
 
 
 class CompanyProfile(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='companies')
     company_name = models.CharField(max_length=255, blank=True)
     head_office_address = models.TextField(blank=True)
     contact_number = models.CharField(max_length=20, blank=True)
@@ -22,7 +22,7 @@ class CompanyProfile(models.Model):
 
 
 class ApplicantProfile(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='applicant_profile')
     phone = models.CharField(max_length=20, blank=True)
     resume = models.FileField(upload_to='resumes/', blank=True)
     bio = models.TextField(blank=True)
@@ -37,15 +37,17 @@ from django.dispatch import receiver
 
 @receiver(post_save, sender=CustomUser)
 def create_user_profiles(sender, instance, created, **kwargs):
-    """Automatically create profiles when a new user is created."""
+    """Automatically create default profiles when a new user is created."""
     if created:
         if instance.user_type == 'applicant':
             ApplicantProfile.objects.get_or_create(user=instance)
         elif instance.user_type == 'recruiter':
-            CompanyProfile.objects.get_or_create(
-                user=instance,
-                defaults={'company_name': f"{instance.username} Company"}
-            )
+            # Create a default company for new recruiters
+            if not CompanyProfile.objects.filter(user=instance).exists():
+                CompanyProfile.objects.create(
+                    user=instance,
+                    company_name=f"{instance.username} Company"
+                )
 
 
 class JobPost(models.Model):
@@ -83,6 +85,7 @@ class JobApplication(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     applied_at = models.DateTimeField(auto_now_add=True)
     notes = models.TextField(blank=True, null=True)
+    resume = models.FileField(upload_to='application_resumes/', blank=True, null=True)
 
     class Meta:
         unique_together = ('job', 'applicant')

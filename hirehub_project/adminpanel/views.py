@@ -150,7 +150,7 @@ class RegisterAPI(APIView):
         serializer = RecruiterRegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            user.is_active = False # Require email verification
+            user.is_active = True # Auto-activate for testing
             user.save()
             from moderator.utils import send_verification_email
             send_verification_email(user)

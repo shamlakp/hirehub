@@ -5,6 +5,7 @@ class CompanyProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CompanyProfile
         fields = '__all__'
+        read_only_fields = ['user']
 
 class JobPostSerializer(serializers.ModelSerializer):
     company_name = serializers.CharField(source='company.company_name', read_only=True)
@@ -45,9 +46,10 @@ class JobApplicationSerializer(serializers.ModelSerializer):
     job_position = serializers.CharField(source='job.position', read_only=True)
     company_name = serializers.CharField(source='job.company.company_name', read_only=True)
     applicant_name = serializers.CharField(source='applicant.user.username', read_only=True)
+    job_details = serializers.SerializerMethodField()
 
     class Meta:
-        model = None  # Will be set in __init__
+        model = None
         fields = '__all__'
         read_only_fields = ['applied_at', 'applicant']
 
@@ -55,3 +57,12 @@ class JobApplicationSerializer(serializers.ModelSerializer):
         from .models import JobApplication
         self.Meta.model = JobApplication
         super().__init__(*args, **kwargs)
+
+    def get_job_details(self, obj):
+        return {
+            'id': obj.job.id,
+            'title': obj.job.position,
+            'company_name': obj.job.company.company_name,
+            'location': obj.job.location,
+            'salary': obj.job.salary,
+        }
