@@ -42,6 +42,7 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
   
   File? _selectedImage;
   String? _webImage; 
+  Uint8List? _webImageBytes;
   bool _isSubmitting = false;
   
   List<Map<String, dynamic>> _companies = [];
@@ -93,13 +94,17 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      setState(() {
-        if (kIsWeb) {
+      if (kIsWeb) {
+        final bytes = await pickedFile.readAsBytes();
+        setState(() {
           _webImage = pickedFile.path;
-        } else {
+          _webImageBytes = bytes;
+        });
+      } else {
+        setState(() {
           _selectedImage = File(pickedFile.path);
-        }
-      });
+        });
+      }
     }
   }
 
@@ -175,7 +180,9 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(12),
                           child: kIsWeb
-                              ? Image.network(_webImage!, fit: BoxFit.cover)
+                              ? (_webImageBytes != null 
+                                  ? Image.memory(_webImageBytes!, fit: BoxFit.cover) 
+                                  : Image.network(_webImage!, fit: BoxFit.cover)) // fallback
                               : Image.file(_selectedImage!, fit: BoxFit.cover),
                         )
                       : Column(

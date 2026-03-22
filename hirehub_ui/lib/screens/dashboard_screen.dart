@@ -78,7 +78,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const MezbanLogo(fontSize: 28),
+        title: MezbanLogo(
+          fontSize: 28,
+          showText: isDesktop || MediaQuery.of(context).size.width > 600,
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [

@@ -19,10 +19,13 @@ class MezbanLogo extends StatelessWidget {
     final Color primaryColor = iconColor ?? const Color(0xFF673AB7);
     final double iconSize = fontSize * 1.2;
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // New Logo Image
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.centerLeft,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // New Logo Image
         Container(
           width: iconSize,
           height: iconSize,
@@ -89,6 +92,7 @@ class MezbanLogo extends StatelessWidget {
           ),
         ],
       ],
+      ),
     );
   }
 }
