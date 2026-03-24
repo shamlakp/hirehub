@@ -7,7 +7,9 @@ from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.decorators import login_required
 from .serializers import CustomUserSerializer, PlatformSettingsSerializer
-from .models import CustomUser, PlatformSettings
+from .models import CustomUser, PlatformSettings, OTPVerification
+from django.core.mail import send_mail
+from django.conf import settings
 from .decorators import admin_required
 from django.urls import reverse
 from django.http import JsonResponse
@@ -143,8 +145,58 @@ class LoginAPI(APIView):
             
         return Response({'error': 'Invalid Credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
+class SendOTPAPI(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        if not email:
+            return Response({'error': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check if email is already registered
+        if CustomUser.objects.filter(email=email).exists():
+            return Response({'error': 'Email is already registered.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        otp_obj, created = OTPVerification.objects.get_or_create(email=email)
+        otp_obj.generate_otp()
+        
+        send_mail(
+            subject='MEZBAN MANPOWER Registration OTP',
+            message=f'Your verification code is: {otp_obj.otp}\nThis code will expire in 10 minutes.',
+            from_email=getattr(settings, 'EMAIL_HOST_USER', 'noreply@mezbanmanpower.com'),
+            recipient_list=[email],
+            fail_silently=True,
+        )
+        return Response({'message': 'OTP sent successfully to your email.'}, status=status.HTTP_200_OK)
+
+class VerifyOTPAPI(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        otp = request.data.get('otp')
+        
+        if not email or not otp:
+            return Response({'error': 'Email and OTP are required.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        otp_obj = OTPVerification.objects.filter(email=email).first()
+        if not otp_obj:
+            return Response({'error': 'No OTP found for this email.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        if not otp_obj.is_valid():
+            return Response({'error': 'OTP has expired.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        if otp_obj.otp != otp:
+            return Response({'error': 'Invalid OTP.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        otp_obj.is_verified = True
+        otp_obj.save()
+        return Response({'message': 'Email verified successfully.'}, status=status.HTTP_200_OK)
+
 class RegisterAPI(APIView):
     def post(self, request):
+        email = request.data.get('email')
+        if email:
+            otp_obj = OTPVerification.objects.filter(email=email).first()
+            if not otp_obj or not otp_obj.is_verified:
+                return Response({"error": "Please verify your email with an OTP first."}, status=status.HTTP_400_BAD_REQUEST)
+
         # We use a dedicated recruiter serializer to ensure password hashing and correct user_type
         from .serializers import RecruiterRegisterSerializer
         serializer = RecruiterRegisterSerializer(data=request.data)
@@ -152,9 +204,10 @@ class RegisterAPI(APIView):
             user = serializer.save()
             user.is_active = True # Auto-activate for testing
             user.save()
-            from moderator.utils import send_verification_email
-            send_verification_email(user)
-            return Response({"message": "Registration successful. Please verify your email."}, status=status.HTTP_201_CREATED)
+            # Clean up the OTP entry
+            if email and otp_obj:
+                otp_obj.delete()
+            return Response({"message": "Registration successful. You can log in immediately."}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class PlatformSettingsAPI(APIView):

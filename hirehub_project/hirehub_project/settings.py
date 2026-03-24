@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # Use django-environ to manage environment variables and secrets
-import environ
+import environ  # pyre-ignore[21]
 
 # Initialize environment variables
 env = environ.Env(
@@ -28,7 +28,7 @@ env = environ.Env(
 )
 
 # Use PyMySQL as a fallback for mysqlclient on Windows to fix SSL errors
-import pymysql
+import pymysql  # pyre-ignore[21]
 pymysql.install_as_MySQLdb()
 
 # Read .env file if present
@@ -105,6 +105,9 @@ DATABASES = {
         'PASSWORD': env('DB_PASSWORD', default=''),
         'HOST': env('DB_HOST', default='127.0.0.1'),
         'PORT': env('DB_PORT', default='3306'),
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
 }
 
@@ -196,3 +199,5 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ],
 }
+
+# trigger reload

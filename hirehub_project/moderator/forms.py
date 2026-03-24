@@ -84,7 +84,7 @@ class ApplicantForm(forms.ModelForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.user_type = 'applicant'
-        user.is_active = False # Set to False for email verification
+        user.is_active = True # Auto-activate by default
         if self.cleaned_data['password']:
             user.set_password(self.cleaned_data['password'])
         if commit:

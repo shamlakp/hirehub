@@ -68,16 +68,16 @@ def company_register(request):
                 form.add_error('username', 'This username is already taken.')
                 return render(request, 'moderator/company_register.html', {'form': form})
 
-            # 🔹 Create inactive user
+            # 🔹 Create active user
             user = form.save(commit=False)
-            user.is_active = False
+            user.is_active = True
             user.save()
 
-            # 🔹 Send verification email using utility
-            from .utils import send_verification_email
-            send_verification_email(user)
+            # 🔹 Skip verification email since user is auto-activated
+            # from .utils import send_verification_email
+            # send_verification_email(user)
 
-            return redirect('moderator:company_dashboard')  # or show a "check your email" page
+            return redirect('moderator:company_dashboard')
     else:
         form = RecruiterForm()
     return render(request, 'moderator/company_register.html', {'form': form})
@@ -92,9 +92,9 @@ def applicant_register(request):
         form = ApplicantForm(request.POST)
         if form.is_valid():
             user = form.save()
-            from .utils import send_verification_email
-            send_verification_email(user)
-            messages.success(request, "Registration successful. Please check your email to verify your account.")
+            # from .utils import send_verification_email
+            # send_verification_email(user)
+            messages.success(request, "Registration successful. You can now log in.")
             return redirect('moderator:login')
     else:
         form = ApplicantForm()
@@ -277,15 +277,22 @@ class JobPostViewSet(viewsets.ModelViewSet):
 
 class ApplicantRegisterAPI(APIView):
     def post(self, request):
+        email = request.data.get('email')
+        from adminpanel.models import OTPVerification
+        if email:
+            otp_obj = OTPVerification.objects.filter(email=email).first()
+            if not otp_obj or not otp_obj.is_verified:
+                return Response({"error": "Please verify your email with an OTP first."}, status=status.HTTP_400_BAD_REQUEST)
+
         from adminpanel.serializers import ApplicantSerializer
         serializer = ApplicantSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            user.is_active = False
+            user.is_active = True
             user.save()
-            from .utils import send_verification_email
-            send_verification_email(user)
-            return Response({"message": "Registration successful. Please verify your email."}, status=status.HTTP_201_CREATED)
+            if email and otp_obj:
+                otp_obj.delete()
+            return Response({"message": "Registration successful. You can log in immediately."}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LogoutAPI(APIView):

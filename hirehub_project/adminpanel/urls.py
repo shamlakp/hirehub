@@ -19,5 +19,7 @@ urlpatterns = [
      # APIs
      path('api/login/', views.LoginAPI.as_view(), name='api_login'),
      path('api/register/', views.RegisterAPI.as_view(), name='api_register'),
-    path('api/platform-settings/', views.PlatformSettingsAPI.as_view(), name='api_platform_settings'),
+     path('api/send-otp/', views.SendOTPAPI.as_view(), name='api_send_otp'),
+     path('api/verify-otp/', views.VerifyOTPAPI.as_view(), name='api_verify_otp'),
+     path('api/platform-settings/', views.PlatformSettingsAPI.as_view(), name='api_platform_settings'),
 ]
