@@ -10,16 +10,36 @@ class PlatformSettingsAdmin(admin.ModelAdmin):
     
     def has_add_permission(self, request):
         # Only allow one instance of settings
+
         if self.model.objects.count() >= 1:
             return False
         return super().has_add_permission(request)
 
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'email', 'user_type', 'is_active')
+    list_display = ('username', 'email', 'user_type', 'is_active', 'delete_user_link')
     list_filter = ('user_type', 'is_active')
     search_fields = ('username', 'email')
-    actions = ['activate_users', 'deactivate_users']
+    actions = ['activate_users', 'deactivate_users', 'delete_selected_users_robust']
+
+    def delete_user_link(self, obj):
+        if obj.is_superuser:
+            return "---"
+        return format_html(
+            '<a class="button" href="/adminpanel/user/{}/ajax-delete/" style="background-color: #ba2121; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none;" onclick="return confirm(\'Are you sure you want to delete this user and all associated data?\')">Delete</a>',
+            obj.pk
+        )
+    delete_user_link.short_description = 'Actions'
+
+    def delete_selected_users_robust(self, request, queryset):
+        """Standard Django delete queryset fails on some DB constraints; this is more verbose."""
+        count = 0
+        for user in queryset:
+            if not user.is_superuser:
+                user.delete()
+                count += 1
+        self.message_user(request, f'{count} users were successfully deleted.')
+    delete_selected_users_robust.short_description = "Delete selected users (Safe Mode)"
 
     def activate_users(self, request, queryset):
         updated = queryset.update(is_active=True)
@@ -30,6 +50,8 @@ class CustomUserAdmin(admin.ModelAdmin):
         updated = queryset.update(is_active=False)
         self.message_user(request, f'{updated} users were successfully deactivated.')
     deactivate_users.short_description = "Deactivate selected users"
+
+
 
 
 @admin.register(CompanyProfile)

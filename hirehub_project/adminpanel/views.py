@@ -93,9 +93,34 @@ def ajax_edit_company(request, company_id):
 @csrf_exempt
 @login_required
 def ajax_delete_company(request, company_id):
-    company = get_object_or_404(CompanyProfile, id=company_id)
-    company.delete()
-    return JsonResponse({'success': True})
+    try:
+        company = get_object_or_404(CompanyProfile, id=company_id)
+        company.delete()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+@csrf_exempt
+@login_required
+@admin_required
+def ajax_delete_user(request, user_id):
+    if request.method in ['POST', 'GET']:  # Allow GET for the button click if needed, though POST is safer
+        try:
+            target_user = get_object_or_404(CustomUser, id=user_id)
+            if target_user == request.user:
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'error': 'You cannot delete yourself.'})
+                return redirect('/admin/adminpanel/customuser/')
+            
+            target_user.delete()
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': True})
+            return redirect('/admin/adminpanel/customuser/')
+        except Exception as e:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'error': str(e)})
+            return redirect('/admin/adminpanel/customuser/')
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'})
 
 
 

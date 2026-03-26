@@ -30,8 +30,8 @@
           title="Save">
           💾
         </button>
-        <button class="btn btn-sm btn-light text-danger rounded-circle" onclick="deleteCompany('{{ company.id }}')"
-          title="Delete">
+        <button class="btn btn-sm btn-light text-danger rounded-circle" onclick="deleteRecruiter('{{ company.user.id }}', '{{ company.id }}')"
+          title="Delete Recruiter">
           🗑️
         </button>
       </div>
@@ -68,23 +68,32 @@
       });
   }
 
-  function deleteCompany(companyId) {
-    if (confirm("Are you sure you want to delete this company?")) {
-      fetch(`/adminpanel/company/${companyId}/ajax-delete/`, {
+  function deleteRecruiter(userId, companyRowId) {
+    if (confirm("Are you sure you want to delete this recruiter and all associated data?")) {
+      fetch(`/adminpanel/user/${userId}/ajax-delete/`, {
         method: 'POST',
         headers: {
           'X-CSRFToken': '{{ csrf_token }}',
           'Content-Type': 'application/json'
         }
       })
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+          }
+          return response.json();
+        })
         .then(data => {
           if (data.success) {
-            document.getElementById(`company-row-${companyId}`).remove();
-            alert("Company deleted successfully!");
+            document.getElementById(`company-row-${companyRowId}`).remove();
+            alert("Recruiter and associated company deleted successfully!");
           } else {
             alert("Error: " + data.error);
           }
+        })
+        .catch(error => {
+          alert("Network or Server Error: " + error.message);
+          console.error('Delete error:', error);
         });
     }
   }
