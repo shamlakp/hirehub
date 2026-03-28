@@ -13,9 +13,14 @@ from django.conf import settings
 from .decorators import admin_required
 from django.urls import reverse
 from django.http import JsonResponse
-from moderator.models import JobPost, CompanyProfile
+from moderator.models import JobPost, CompanyProfile, ApplicantProfile, JobApplication
 from moderator.forms import JobPostForm, CompanyProfileForm
 import json
+import logging
+from django.db import transaction, IntegrityError
+from django.db.models import ProtectedError
+
+logger = logging.getLogger(__name__)
 
 @login_required
 @admin_required
@@ -104,22 +109,46 @@ def ajax_delete_company(request, company_id):
 @login_required
 @admin_required
 def ajax_delete_user(request, user_id):
-    if request.method in ['POST', 'GET']:  # Allow GET for the button click if needed, though POST is safer
+    redirect_url = '/admin/adminpanel/customuser/'
+    
+    if request.method in ['POST', 'GET']:
         try:
-            target_user = get_object_or_404(CustomUser, id=user_id)
-            if target_user == request.user:
+            with transaction.atomic():
+                target_user = get_object_or_404(CustomUser, id=user_id)
+                
+                if target_user == request.user:
+                    error_msg = 'You cannot delete yourself.'
+                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        return JsonResponse({'success': False, 'error': error_msg})
+                    return redirect(redirect_url)
+
+                # Explicitly handle related objects if needed, although CASCADE should work
+                # Deleting the user will trigger CASCADE on CompanyProfile and ApplicantProfile
+                target_user.delete()
+                
                 if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return JsonResponse({'success': False, 'error': 'You cannot delete yourself.'})
-                return redirect('/admin/adminpanel/customuser/')
-            
-            target_user.delete()
+                    return JsonResponse({'success': True})
+                return redirect(redirect_url)
+                
+        except ProtectedError as e:
+            error_msg = f"Cannot delete user: {str(e)}"
+            logger.error(f"ProtectedError deleting user {user_id}: {e}")
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'success': True})
-            return redirect('/admin/adminpanel/customuser/')
+                return JsonResponse({'success': False, 'error': error_msg})
+            return redirect(redirect_url)
+        except IntegrityError as e:
+            error_msg = f"Database integrity error: {str(e)}"
+            logger.error(f"IntegrityError deleting user {user_id}: {e}")
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'error': error_msg})
+            return redirect(redirect_url)
         except Exception as e:
+            error_msg = f"Unexpected error: {str(e)}"
+            logger.error(f"Error deleting user {user_id}: {e}")
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'success': False, 'error': str(e)})
-            return redirect('/admin/adminpanel/customuser/')
+                return JsonResponse({'success': False, 'error': error_msg})
+            return redirect(redirect_url)
+            
     return JsonResponse({'success': False, 'error': 'Invalid request method.'})
 
 
