@@ -8,6 +8,7 @@ import '../widgets/filter_sidebar.dart';
 import '../widgets/hero_search_bar.dart';
 import '../widgets/mezban_logo.dart';
 import '../utils/url_helper.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
 import 'applicant_profile_screen.dart';
@@ -27,6 +28,8 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  int _currentIndex = 0;
+
   @override
   void initState() {
     super.initState();
@@ -76,148 +79,223 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final isDesktop = MediaQuery.of(context).size.width > 900;
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: MezbanLogo(
-          fontSize: 28,
-          showText: isDesktop || MediaQuery.of(context).size.width > 600,
+        leadingWidth: 160,
+        leading: Row(
+          children: [
+            const SizedBox(width: 16),
+            const Icon(Icons.location_on_outlined, color: Color(0xFF673AB7), size: 20),
+            const SizedBox(width: 8),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('You are in', style: TextStyle(color: Colors.grey, fontSize: 10)),
+                Text(
+                  'Kannur',
+                  style: TextStyle(
+                    color: Colors.black.withOpacity(0.8),
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
+        title: null,
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
-          if (!auth.isAuthenticated) ...[
-            TextButton(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const RegisterScreen()),
-              ),
-              child: const Text('Sign Up', style: TextStyle(color: Colors.black87)),
-            ),
-            const SizedBox(width: 8),
-            Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: ElevatedButton(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF673AB7),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                  elevation: 0,
-                ),
-                child: const Text('Sign In'),
-              ),
-            ),
-          ] else ...[
-            if (userType == 'admin')
-              Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: OutlinedButton.icon(
-                  onPressed: () async {
-                    try {
-                      await UrlHelper.launchBackendUrl('/adminpanel/dashboard/');
-                    } catch (e) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error: $e')),
-                        );
-                      }
-                    }
-                  },
-                  icon: const Icon(Icons.admin_panel_settings, size: 18),
-                  label: const Text('Admin Panel'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF673AB7),
-                    side: const BorderSide(color: Color(0xFF673AB7)),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                  ),
-                ),
-              ),
-            if (userType == 'applicant')
-              IconButton(
-                icon: const Icon(Icons.dashboard_outlined, color: Colors.black87),
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const ApplicantDashboardScreen()),
-                ),
-              ),
-            if (userType == 'recruiter')
-              IconButton(
-                icon: const Icon(Icons.business_center_outlined, color: Colors.black87), // Distinguish icon
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const RecruiterDashboardScreen()),
-                ),
-              ),
-            Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: TextButton(
-                onPressed: () => _logout(),
-                child: const Text('Logout', style: TextStyle(color: Colors.redAccent)),
-              ),
-            ),
-          ],
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined, color: Color(0xFF673AB7)),
+            onPressed: () {
+              // Notifications placeholder
+            },
+          ),
+          const SizedBox(width: 8),
         ],
         iconTheme: const IconThemeData(color: Colors.black87),
       ),
       drawer: isDesktop ? null : _buildDrawer(context, username, userType),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const HeroSearchBar(),
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1200),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (isDesktop) const FilterSidebar(),
-                    const SizedBox(width: 32),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildSortAndFoundRow(),
-                          const SizedBox(height: 24),
-                          _buildJobGrid(),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+      endDrawer: isDesktop ? null : const Drawer(
+        child: SafeArea(child: FilterSidebar()),
       ),
-      floatingActionButton: userType == 'recruiter'
-          ? FloatingActionButton.extended(
+      body: _currentIndex == 0 
+          ? _buildHomeBody(context, isDesktop, userType)
+          : _buildOtherScreen(_currentIndex, userType),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+        selectedItemColor: const Color(0xFF673AB7),
+        unselectedItemColor: Colors.grey,
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.assignment_outlined), label: 'Applications'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
+        ],
+      ),
+      floatingActionButton: userType == 'recruiter' && _currentIndex == 0
+          ? FloatingActionButton(
               onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CreateJobScreen())),
-              backgroundColor: const Color(0xFF0D47A1),
+              backgroundColor: const Color(0xFF673AB7),
               foregroundColor: Colors.white,
-              icon: const Icon(Icons.add),
-              label: const Text('Post Job'),
+              child: const Icon(Icons.add),
             )
           : null,
     );
   }
 
+  Widget _buildHomeBody(BuildContext context, bool isDesktop, String userType) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. Top Search Bar
+          const HeroSearchBar(),
+          
+          const SizedBox(height: 16),
+          
+          // 2. Categories Section (Round symbols)
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              'Categories',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 100,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              itemCount: 6,
+              itemBuilder: (context, index) {
+                final categories = ['IT', 'Design', 'Sales', 'Finance', 'HR', 'Support'];
+                final icons = [Icons.laptop, Icons.brush, Icons.trending_up, Icons.account_balance, Icons.people, Icons.headset_mic];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF673AB7).withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(icons[index % icons.length], color: const Color(0xFF673AB7)),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(categories[index % categories.length], style: const TextStyle(fontSize: 12)),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          const SizedBox(height: 16),
+          
+          const SizedBox(height: 16),
+          
+          // 3. Compact Hero Section with Contact Buttons
+          _buildCompactHero(context),
+
+          const SizedBox(height: 24),
+
+          // 4. Jobs Section
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: _buildSortAndFoundRow(),
+          ),
+          
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1200),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (isDesktop) const FilterSidebar(),
+                  if (isDesktop) const SizedBox(width: 32),
+                  Expanded(
+                    child: _buildJobGrid(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOtherScreen(int index, String userType) {
+    final auth = context.watch<AuthProvider>();
+    if (!auth.isAuthenticated) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.lock_outline, size: 64, color: Colors.grey),
+            const SizedBox(height: 16),
+            const Text('Please sign in to view this page'),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+              ),
+              child: const Text('Sign In'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (index == 1) {
+      // For now, these still return Scaffolds which might cause double AppBars.
+      // In a real app we'd refactor them to be just the body.
+      return userType == 'applicant' ? const ApplicantApplicationsScreen() : const RecruiterApplicationsScreen();
+    } else {
+      return userType == 'applicant' ? const ApplicantProfileScreen() : const RecruiterProfileScreen();
+    }
+  }
+
   Widget _buildSortAndFoundRow() {
     return Consumer<JobProvider>(
       builder: (context, provider, child) {
+        final isMobile = MediaQuery.of(context).size.width <= 900;
         return Row(
           children: [
-            Text(
-              '${provider.jobs.length} Jobs found',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            if (isMobile)
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: IconButton(
+                  icon: const Icon(Icons.filter_list, color: Color(0xFF673AB7)),
+                  onPressed: () => Scaffold.of(context).openEndDrawer(),
+                  tooltip: 'Filter Jobs',
+                ),
+              ),
+            Expanded(
+              child: Text(
+                '${provider.jobs.length} Jobs found',
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            const SizedBox(width: 16),
-            TextButton(
-              onPressed: () => provider.clearSearch(),
-              child: const Text('Clear All'),
-            ),
-            const Spacer(),
+            if (!isMobile) const SizedBox(width: 16),
+            if (!isMobile)
+              TextButton(
+                onPressed: () => provider.clearSearch(),
+                child: const Text('Clear All'),
+              ),
+            if (!isMobile) const Spacer(),
             const Text('Sort by '),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -413,6 +491,132 @@ class _DashboardScreenState extends State<DashboardScreen> {
               },
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCompactHero(BuildContext context) {
+    return Consumer<PlatformProvider>(
+      builder: (context, provider, child) {
+        final settings = provider.settings;
+        if (settings == null) return const SizedBox.shrink();
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Container(
+            height: 140, // Compact height
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              image: const DecorationImage(
+                image: AssetImage('assets/images/slider_1.jpg'),
+                fit: BoxFit.cover,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.7),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      const Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Looking for a job?',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              'Contact us for immediate help',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          _buildCircleIcon(
+                            icon: Icons.phone,
+                            color: Colors.white,
+                            bgColor: const Color(0xFF673AB7),
+                            onTap: () => launchUrl(Uri.parse('tel:${settings.phoneNumber}')),
+                          ),
+                          const SizedBox(width: 12),
+                          _buildCircleIcon(
+                            icon: Icons.chat,
+                            color: Colors.white,
+                            bgColor: const Color(0xFF25D366),
+                            onTap: () {
+                              final whatsappUrl = 'https://wa.me/${settings.whatsappNumber.replaceAll(RegExp(r'[^0-9]'), '')}';
+                              launchUrl(Uri.parse(whatsappUrl), mode: LaunchMode.externalApplication);
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCircleIcon({
+    required IconData icon,
+    required Color color,
+    required Color bgColor,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: bgColor,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 5,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Icon(icon, color: color, size: 20),
       ),
     );
   }

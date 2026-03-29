@@ -21,7 +21,7 @@ class MezbanLogo extends StatelessWidget {
 
     return FittedBox(
       fit: BoxFit.scaleDown,
-      alignment: Alignment.centerLeft,
+      alignment: Alignment.center,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -11,6 +11,17 @@ class ApiService {
 
   static const String _tokenKey = 'auth_token';
   static const String _userKey = 'user_data';
+  
+  // List of endpoints that don't require authentication
+  static const List<String> _publicEndpoints = [
+    '/api/jobs/',
+    '/adminpanel/api/platform-settings/',
+    '/adminpanel/api/login/',
+    '/adminpanel/api/register/',
+    '/adminpanel/api/send-otp/',
+    '/adminpanel/api/verify-otp/',
+    '/api/applicant/register/',
+  ];
 
   late final Dio _dio;
   String? _token;
@@ -42,14 +53,25 @@ class ApiService {
           if (_token != null) {
             options.headers['Authorization'] = 'Token $_token';
             if (kDebugMode) {
-              debugPrint('Authorization header set');
+              debugPrint('Authorization header set for ${options.path}');
             }
           } else {
             if (kDebugMode) {
-              debugPrint('No token found for request to ${options.path}');
+              // Only log missing token if it's NOT a public endpoint
+              final isPublic = _publicEndpoints.any((endpoint) => options.path.contains(endpoint));
+              if (!isPublic) {
+                debugPrint('No token found for protected request to ${options.path}');
+              }
             }
           }
           return handler.next(options);
+        },
+        
+        onResponse: (response, handler) {
+          if (kDebugMode) {
+            debugPrint('API Response: ${response.statusCode} ${response.requestOptions.path}');
+          }
+          return handler.next(response);
         },
 
         onError: (error, handler) async {
@@ -178,6 +200,32 @@ class ApiService {
       return response;
     } catch (e) {
       _logError('Register', e);
+      rethrow;
+    }
+  }
+
+  Future<Response> sendOTP(String email) async {
+    try {
+      final response = await _dio.post(
+        '/adminpanel/api/send-otp/',
+        data: {'email': email},
+      );
+      return response;
+    } catch (e) {
+      _logError('sendOTP', e);
+      rethrow;
+    }
+  }
+
+  Future<Response> verifyOTP(String email, String otp) async {
+    try {
+      final response = await _dio.post(
+        '/adminpanel/api/verify-otp/',
+        data: {'email': email, 'otp': otp},
+      );
+      return response;
+    } catch (e) {
+      _logError('verifyOTP', e);
       rethrow;
     }
   }
@@ -405,7 +453,7 @@ class ApiService {
 
   static String getBaseUrl() {
     if (kIsWeb) {
-      if (kDebugMode) return 'http://localhost:8000';
+      if (kDebugMode) return 'http://127.0.0.1:8000';
       return 'https://shamlashammu.pythonanywhere.com';
     }
     if (defaultTargetPlatform == TargetPlatform.android && kDebugMode) {

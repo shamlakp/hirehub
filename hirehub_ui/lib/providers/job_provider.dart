@@ -66,6 +66,10 @@ class JobProvider with ChangeNotifier {
       _jobs = jobList
           .map((json) => JobPost.fromJson(json as Map<String, dynamic>))
           .toList();
+      
+      if (kDebugMode) {
+        debugPrint('fetchJobs: Successfully loaded ${_jobs.length} jobs');
+      }
     } catch (e) {
       _errorMessage = 'Failed to load jobs: ${e.toString()}';
       if (kDebugMode) {

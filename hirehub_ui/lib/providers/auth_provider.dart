@@ -88,6 +88,56 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  /// Send OTP via API
+  Future<bool> sendOTP(String email) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final response = await _apiService.sendOTP(email);
+      if (response.statusCode == 200) {
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      }
+      _isLoading = false;
+      _errorMessage = 'Failed to send OTP';
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = _handleError(e);
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Verify OTP via API
+  Future<bool> verifyOTP(String email, String otp) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final response = await _apiService.verifyOTP(email, otp);
+      if (response.statusCode == 200) {
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      }
+      _isLoading = false;
+      _errorMessage = 'Failed to verify OTP';
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = _handleError(e);
+      notifyListeners();
+      return false;
+    }
+  }
+
   /// Register recruiter via API
   Future<bool> registerRecruiter(Map<String, dynamic> data) async {
     _isLoading = true;

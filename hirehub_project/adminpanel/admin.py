@@ -2,6 +2,11 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import CustomUser, PlatformSettings
 from moderator.models import CompanyProfile
+from django.db import transaction, IntegrityError
+from django.db.models import ProtectedError
+import logging
+
+logger = logging.getLogger(__name__)
 
 @admin.register(PlatformSettings)
 class PlatformSettingsAdmin(admin.ModelAdmin):
@@ -32,14 +37,38 @@ class CustomUserAdmin(admin.ModelAdmin):
     delete_user_link.short_description = 'Actions'
 
     def delete_selected_users_robust(self, request, queryset):
-        """Standard Django delete queryset fails on some DB constraints; this is more verbose."""
-        count = 0
+        """Standard Django delete queryset fails on some DB constraints; this is more verbose and robust."""
+        success_count = 0
+        error_messages = []
+        
         for user in queryset:
-            if not user.is_superuser:
-                user.delete()
-                count += 1
-        self.message_user(request, f'{count} users were successfully deleted.')
-    delete_selected_users_robust.short_description = "Delete selected users (Safe Mode)"
+            if user.is_superuser:
+                continue
+                
+            try:
+                with transaction.atomic():
+                    username = user.username
+                    user.delete()
+                    success_count += 1
+                    logger.info(f"Successfully deleted user {username} via admin action.")
+            except (ProtectedError, IntegrityError) as e:
+                error_msg = f"Could not delete {user.username}: {str(e)}"
+                error_messages.append(error_msg)
+                logger.error(f"Failed to delete user {user.username} via admin action: {e}")
+            except Exception as e:
+                error_msg = f"Unexpected error deleting {user.username}: {str(e)}"
+                error_messages.append(error_msg)
+                logger.exception(f"Unexpected error during bulk deletion of {user.username}: {e}")
+
+        if success_count:
+            self.message_user(request, f'{success_count} users were successfully deleted.')
+        
+        if error_messages:
+            from django.contrib import messages
+            for msg in error_messages:
+                self.message_user(request, msg, level=messages.ERROR)
+                
+    delete_selected_users_robust.short_description = "Delete selected users (Robust Mode)"
 
     def activate_users(self, request, queryset):
         updated = queryset.update(is_active=True)

@@ -1,3 +1,4 @@
+import logging
 from django.shortcuts import render,redirect,get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
@@ -6,8 +7,10 @@ from rest_framework import status
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.decorators import login_required
+from rest_framework.permissions import AllowAny
 from .serializers import CustomUserSerializer, PlatformSettingsSerializer
 from .models import CustomUser, PlatformSettings, OTPVerification
+logger = logging.getLogger(__name__)
 from django.core.mail import send_mail
 from django.conf import settings
 from .decorators import admin_required
@@ -200,6 +203,7 @@ class LoginAPI(APIView):
         return Response({'error': 'Invalid Credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
 class SendOTPAPI(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         email = request.data.get('email')
         if not email:
@@ -211,17 +215,24 @@ class SendOTPAPI(APIView):
 
         otp_obj, created = OTPVerification.objects.get_or_create(email=email)
         otp_obj.generate_otp()
-        
-        send_mail(
-            subject='MEZBAN MANPOWER Registration OTP',
-            message=f'Your verification code is: {otp_obj.otp}\nThis code will expire in 10 minutes.',
-            from_email=getattr(settings, 'EMAIL_HOST_USER', 'noreply@mezbanmanpower.com'),
-            recipient_list=[email],
-            fail_silently=True,
-        )
+        try:
+            send_mail(
+                subject='MEZBAN MANPOWER Registration OTP',
+                message=f'Your verification code is: {otp_obj.otp}\nThis code will expire in 10 minutes.',
+                from_email=getattr(settings, 'EMAIL_HOST_USER', 'noreply@mezbanmanpower.com'),
+                recipient_list=[email],
+                fail_silently=False, # Set to False to catch errors
+            )
+            logger.info(f"OTP successfully sent to {email}")
+        except Exception as e:
+            logger.error(f"Failed to send OTP email to {email}: {str(e)}")
+            # In production, we want to know why it failed, but maybe not expose SMTP details to user
+            return Response({'error': f'Failed to send email. Please contact support. (Ref: {type(e).__name__})'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         return Response({'message': 'OTP sent successfully to your email.'}, status=status.HTTP_200_OK)
 
 class VerifyOTPAPI(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         email = request.data.get('email')
         otp = request.data.get('otp')
@@ -244,6 +255,7 @@ class VerifyOTPAPI(APIView):
         return Response({'message': 'Email verified successfully.'}, status=status.HTTP_200_OK)
 
 class RegisterAPI(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         email = request.data.get('email')
         if email:

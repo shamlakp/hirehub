@@ -23,9 +23,11 @@ class _SplashScreenState extends State<SplashScreen> {
     // Initialize authentication state
     await context.read<AuthProvider>().initializeAuth();
 
+    // 4 second delay as requested
+    await Future.delayed(const Duration(seconds: 4));
+
     if (mounted) {
-      // Always navigate to DashboardScreen (Home) regardless of auth status
-      // The Dashboard will handle guest/authenticated states
+      // Navigate to DashboardScreen (Home)
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const DashboardScreen()),
       );
@@ -35,17 +37,9 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
+      backgroundColor: Colors.white,
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            MezbanLogo(fontSize: 40, showText: true),
-            SizedBox(height: 48),
-            CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF673AB7)),
-            ),
-          ],
-        ),
+        child: MezbanLogo(fontSize: 180, showText: false),
       ),
     );
   }
