@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../services/api_service.dart';
-import '../utils/url_helper.dart';
 import 'applicant_profile_screen.dart';
 import 'applicant_applications_screen.dart';
 import 'dashboard_screen.dart';
@@ -43,9 +42,13 @@ class _ApplicantDashboardScreenState extends State<ApplicantDashboardScreen> {
 
         for (var app in apps) {
           final status = (app['status'] ?? '').toString().toLowerCase();
-          if (status == 'pending') pending++;
-          else if (status == 'shortlisted' || status == 'accepted') shortlisted++;
-          else if (status == 'rejected') rejected++;
+          if (status == 'pending') {
+            pending++;
+          } else if (status == 'shortlisted' || status == 'accepted') {
+            shortlisted++;
+          } else if (status == 'rejected') {
+            rejected++;
+          }
         }
 
         if (mounted) {
@@ -190,7 +193,7 @@ class _ApplicantDashboardScreenState extends State<ApplicantDashboardScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -283,7 +286,7 @@ class _ApplicantDashboardScreenState extends State<ApplicantDashboardScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
@@ -358,9 +361,9 @@ class _ApplicantDashboardScreenState extends State<ApplicantDashboardScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.05),
+          color: color.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.1)),
+          border: Border.all(color: color.withValues(alpha: 0.1)),
         ),
         child: Column(
           children: [

@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../utils/url_helper.dart';
 import 'login_screen.dart';
-import 'recruiter_dashboard_screen.dart';
-import 'recruiter_applications_screen.dart';
-import 'create_job_screen.dart';
 
-class RecruiterProfileScreen extends StatelessWidget {
-  const RecruiterProfileScreen({super.key});
+class AdminProfileScreen extends StatelessWidget {
+  const AdminProfileScreen({super.key});
 
   Future<void> _logout(BuildContext context) async {
     final authProvider = context.read<AuthProvider>();
@@ -43,7 +41,7 @@ class RecruiterProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-    final username = auth.userData?['username'] ?? 'Recruiter';
+    final username = auth.userData?['username'] ?? 'Admin';
     final email = auth.userData?['email'] ?? '';
 
     return Scaffold(
@@ -59,7 +57,7 @@ class RecruiterProfileScreen extends StatelessWidget {
                 const CircleAvatar(
                   radius: 50,
                   backgroundColor: Color(0xFF673AB7),
-                  child: Icon(Icons.person, size: 60, color: Colors.white),
+                  child: Icon(Icons.admin_panel_settings, size: 60, color: Colors.white),
                 ),
                 const SizedBox(height: 24),
                 Text(
@@ -80,37 +78,20 @@ class RecruiterProfileScreen extends StatelessWidget {
                 const SizedBox(height: 40),
                 const Divider(),
                 const SizedBox(height: 24),
-                _buildActionCard(
+                _buildAdminAction(
                   context,
-                  icon: Icons.business,
-                  label: 'My Companies',
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const RecruiterDashboardScreen()),
-                  ),
+                  icon: Icons.dashboard_outlined,
+                  label: 'Admin Dashboard',
+                  onTap: () => UrlHelper.launchBackendUrl('/adminpanel/dashboard/'),
                   color: const Color(0xFF673AB7),
                 ),
                 const SizedBox(height: 16),
-                _buildActionCard(
+                _buildAdminAction(
                   context,
-                  icon: Icons.add_box_outlined,
-                  label: 'Post a New Job',
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const CreateJobScreen()),
-                  ),
-                  color: Colors.blue[700]!,
-                ),
-                const SizedBox(height: 16),
-                _buildActionCard(
-                  context,
-                  icon: Icons.people_outline,
-                  label: 'Manage Applications',
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const RecruiterApplicationsScreen()),
-                  ),
-                  color: Colors.green[700]!,
+                  icon: Icons.settings_suggest_outlined,
+                  label: 'Django Admin Panel',
+                  onTap: () => UrlHelper.launchBackendUrl('/admin/'),
+                  color: Colors.orange[800]!,
                 ),
                 const SizedBox(height: 32),
                 SizedBox(
@@ -135,7 +116,7 @@ class RecruiterProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionCard(
+  Widget _buildAdminAction(
     BuildContext context, {
     required IconData icon,
     required String label,

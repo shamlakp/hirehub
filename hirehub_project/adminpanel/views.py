@@ -1,27 +1,30 @@
-import logging
-from django.shortcuts import render,redirect,get_object_or_404
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from django.contrib.auth import authenticate
-from rest_framework.authtoken.models import Token
-from django.contrib.auth.decorators import login_required
-from rest_framework.permissions import AllowAny
-from .serializers import CustomUserSerializer, PlatformSettingsSerializer
-from .models import CustomUser, PlatformSettings, OTPVerification
-logger = logging.getLogger(__name__)
-from django.core.mail import send_mail
-from django.conf import settings
-from .decorators import admin_required
-from django.urls import reverse
-from django.http import JsonResponse
-from moderator.models import JobPost, CompanyProfile, ApplicantProfile, JobApplication
-from moderator.forms import JobPostForm, CompanyProfileForm
 import json
 import logging
-from django.db import transaction, IntegrityError
-from django.db.models import ProtectedError
+
+from django.conf import settings
+from django.contrib.auth import authenticate
+from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+from django.db import transaction
+from django.db.models.deletion import ProtectedError
+from django.db.utils import IntegrityError
+from django.http import JsonResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
+
+from rest_framework import status
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from moderator.forms import JobPostForm, CompanyProfileForm
+from moderator.models import JobPost, CompanyProfile, ApplicantProfile, JobApplication
+
+from .decorators import admin_required
+from .models import CustomUser, PlatformSettings, OTPVerification
+from .serializers import CustomUserSerializer, PlatformSettingsSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -90,8 +93,8 @@ def manage_jobs(request):
 @login_required
 def ajax_edit_company(request, company_id):
     data = json.loads(request.body)
-    company = get_object_or_404(CompanyProfileForm, id=company_id)
-    form = CompanyForm(data, instance=company)
+    company = get_object_or_404(CompanyProfile, id=company_id)
+    form = CompanyProfileForm(data, instance=company)
     if form.is_valid():
         form.save()
         return JsonResponse({'success': True})
@@ -278,9 +281,9 @@ class RegisterAPI(APIView):
 
 class PlatformSettingsAPI(APIView):
     def get(self, request):
-        settings = PlatformSettings.objects.first()
-        if not settings:
+        p_settings = PlatformSettings.objects.first()
+        if not p_settings:
             # Create default settings if none exist
-            settings = PlatformSettings.objects.create()
-        serializer = PlatformSettingsSerializer(settings)
+            p_settings = PlatformSettings.objects.create()
+        serializer = PlatformSettingsSerializer(p_settings)
         return Response(serializer.data)

@@ -6,19 +6,16 @@ import '../providers/platform_provider.dart';
 import '../widgets/job_grid_card.dart';
 import '../widgets/filter_sidebar.dart';
 import '../widgets/hero_search_bar.dart';
-import '../widgets/mezban_logo.dart';
 import '../utils/url_helper.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'login_screen.dart';
-import 'register_screen.dart';
 import 'applicant_profile_screen.dart';
 import 'create_job_screen.dart';
 import 'job_detail_screen.dart';
 import 'recruiter_profile_screen.dart';
 import 'recruiter_applications_screen.dart';
 import 'applicant_applications_screen.dart';
-import 'recruiter_dashboard_screen.dart';
-import 'applicant_dashboard_screen.dart';
+import 'admin_profile_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -95,7 +92,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Text(
                   'Kannur',
                   style: TextStyle(
-                    color: Colors.black.withOpacity(0.8),
+                    color: Colors.black.withValues(alpha: 0.8),
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                   ),
@@ -108,6 +105,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
+          if (isDesktop && userType == 'admin') ...[
+            TextButton.icon(
+              icon: const Icon(Icons.admin_panel_settings_outlined, size: 20, color: Color(0xFF673AB7)),
+              label: const Text('Admin Dashboard', style: TextStyle(color: Color(0xFF673AB7))),
+              onPressed: () => UrlHelper.launchBackendUrl('/adminpanel/dashboard/'),
+            ),
+            TextButton.icon(
+              icon: const Icon(Icons.settings_suggest_outlined, size: 20, color: Colors.orangeAccent),
+              label: const Text('Django Admin', style: TextStyle(color: Colors.orangeAccent)),
+              onPressed: () => UrlHelper.launchBackendUrl('/admin/'),
+            ),
+            const VerticalDivider(width: 32, indent: 12, endIndent: 12),
+          ],
+          if (isDesktop) ...[
+            if (auth.isAuthenticated)
+              TextButton.icon(
+                onPressed: _logout,
+                icon: const Icon(Icons.logout, size: 20, color: Colors.redAccent),
+                label: const Text('Logout', style: TextStyle(color: Colors.redAccent)),
+              )
+            else
+              ElevatedButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    ),
+                icon: const Icon(Icons.login, size: 20),
+                label: const Text('Sign In'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF673AB7),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            const SizedBox(width: 16),
+          ],
           IconButton(
             icon: const Icon(Icons.notifications_outlined, color: Color(0xFF673AB7)),
             onPressed: () {
@@ -184,7 +216,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF673AB7).withOpacity(0.1),
+                          color: const Color(0xFF673AB7).withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(icons[index % icons.length], color: const Color(0xFF673AB7)),
@@ -263,6 +295,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       // In a real app we'd refactor them to be just the body.
       return userType == 'applicant' ? const ApplicantApplicationsScreen() : const RecruiterApplicationsScreen();
     } else {
+      if (userType == 'admin') return const AdminProfileScreen();
       return userType == 'applicant' ? const ApplicantProfileScreen() : const RecruiterProfileScreen();
     }
   }
@@ -514,7 +547,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -529,7 +562,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                       colors: [
-                        Colors.black.withOpacity(0.7),
+                        Colors.black.withValues(alpha: 0.7),
                         Colors.transparent,
                       ],
                     ),
@@ -610,7 +643,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               blurRadius: 5,
               offset: const Offset(0, 2),
             ),

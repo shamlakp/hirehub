@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../utils/url_helper.dart';
-import 'recruiter_profile_screen.dart';
+import 'company_profile_screen.dart';
 import 'create_job_screen.dart';
 import 'recruiter_applications_screen.dart';
 
@@ -77,7 +77,7 @@ class _RecruiterDashboardScreenState extends State<RecruiterDashboardScreen> {
                             await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => const RecruiterProfileScreen(),
+                                builder: (_) => const CompanyProfileScreen(),
                               ),
                             );
                             _loadData();
@@ -230,7 +230,7 @@ class _RecruiterDashboardScreenState extends State<RecruiterDashboardScreen> {
                     await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => RecruiterProfileScreen(company: company),
+                        builder: (_) => CompanyProfileScreen(company: company),
                       ),
                     );
                     _loadData();
@@ -249,6 +249,7 @@ class _RecruiterDashboardScreenState extends State<RecruiterDashboardScreen> {
   }
 
   Future<void> _confirmDelete(Map<String, dynamic> company) async {
+    final auth = context.read<AuthProvider>();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -270,22 +271,19 @@ class _RecruiterDashboardScreenState extends State<RecruiterDashboardScreen> {
 
     if (confirmed == true) {
       setState(() => _isLoading = true);
-      final auth = context.read<AuthProvider>();
       final success = await auth.deleteCompany(company['id']);
       if (success) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Company deleted successfully')),
-          );
-        }
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Company deleted successfully')),
+        );
         _loadData();
       } else {
-        if (mounted) {
-          setState(() => _isLoading = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(auth.errorMessage ?? 'Delete failed')),
-          );
-        }
+        if (!mounted) return;
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(auth.errorMessage ?? 'Delete failed')),
+        );
       }
     }
   }
