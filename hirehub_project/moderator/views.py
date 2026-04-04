@@ -8,6 +8,10 @@ from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
+import logging
+
+logger = logging.getLogger(__name__)
+
 from .utils import get_dashboard_url, notify_admin_on_login
 from .models import JobPost, CompanyProfile, ApplicantProfile, JobApplication 
 from .forms import RecruiterForm, ApplicantForm, CompanyProfileForm, JobPostForm

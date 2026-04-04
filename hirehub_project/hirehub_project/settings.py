@@ -170,12 +170,11 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 
 # Email settings (use environment variables in production)
-EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
-EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
-
+EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = env('EMAIL_HOST', default='smtp-relay.brevo.com')
 EMAIL_PORT = env.int('EMAIL_PORT', 587)
 EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', True)
-EMAIL_HOST_USER = 'shamlawrk.347@gmail.com'
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='a717df001@smtp-brevo.com')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 
 # CORS Settings
