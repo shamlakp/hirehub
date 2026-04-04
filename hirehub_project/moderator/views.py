@@ -301,11 +301,12 @@ class ApplicantProfileAPI(APIView):
         return Response(serializer.data)
 
     def patch(self, request):
-        print(f"DEBUG: ApplicantProfile patch data: {request.data}")
+        logger.debug(f"ApplicantProfile patch data: {request.data}")
         profile, _ = ApplicantProfile.objects.get_or_create(user=request.user)
         serializer = ApplicantProfileSerializer(profile, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            # Return updated data
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

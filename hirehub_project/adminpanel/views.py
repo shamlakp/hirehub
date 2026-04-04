@@ -216,46 +216,66 @@ class SendOTPAPI(APIView):
         if CustomUser.objects.filter(email=email).exists():
             return Response({'error': 'Email is already registered.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        otp_obj, created = OTPVerification.objects.get_or_create(email=email)
-        otp_obj.generate_otp()
         try:
-            send_mail(
-                subject='MEZBAN MANPOWER Registration OTP',
-                message=f'Your verification code is: {otp_obj.otp}\nThis code will expire in 10 minutes.',
-                from_email=getattr(settings, 'EMAIL_HOST_USER', 'noreply@mezbanmanpower.com'),
-                recipient_list=[email],
-                fail_silently=False, # Set to False to catch errors
-            )
-            logger.info(f"OTP successfully sent to {email}")
-        except Exception as e:
-            logger.error(f"Failed to send OTP email to {email}: {str(e)}")
-            # In production, we want to know why it failed, but maybe not expose SMTP details to user
-            return Response({'error': f'Failed to send email. Please contact support. (Ref: {type(e).__name__})'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            otp_obj, created = OTPVerification.objects.get_or_create(email=email)
+            otp_obj.generate_otp()
+            
+            try:
+                send_mail(
+                    subject='MEZBAN MANPOWER Registration OTP',
+                    message=f'Your verification code is: {otp_obj.otp}\nThis code will expire in 10 minutes.',
+                    from_email=getattr(settings, 'EMAIL_HOST_USER', 'noreply@mezbanmanpower.com'),
+                    recipient_list=[email],
+                    fail_silently=False, 
+                )
+                logger.info(f"OTP successfully sent to {email}")
+            except Exception as e:
+                logger.error(f"Failed to send OTP email to {email}: {str(e)}")
+                # If email fails, we still have the OTP in the DB (admin can see it)
+                # But we should inform the user
+                return Response({
+                    'error': 'Email service currently unavailable. Please contact support or try again later.',
+                    'detail': type(e).__name__ 
+                }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
-        return Response({'message': 'OTP sent successfully to your email.'}, status=status.HTTP_200_OK)
+            return Response({'message': 'OTP sent successfully to your email.'}, status=status.HTTP_200_OK)
+            
+        except Exception as e:
+            logger.error(f"Database error in SendOTPAPI for {email}: {str(e)}")
+            return Response({
+                'error': 'Server error. Please ensure database migrations are updated.',
+                'detail': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class VerifyOTPAPI(APIView):
     permission_classes = [AllowAny]
     def post(self, request):
-        email = request.data.get('email')
-        otp = request.data.get('otp')
-        
-        if not email or not otp:
-            return Response({'error': 'Email and OTP are required.'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            email = request.data.get('email')
+            otp = request.data.get('otp')
             
-        otp_obj = OTPVerification.objects.filter(email=email).first()
-        if not otp_obj:
-            return Response({'error': 'No OTP found for this email.'}, status=status.HTTP_400_BAD_REQUEST)
-            
-        if not otp_obj.is_valid():
-            return Response({'error': 'OTP has expired.'}, status=status.HTTP_400_BAD_REQUEST)
-            
-        if otp_obj.otp != otp:
-            return Response({'error': 'Invalid OTP.'}, status=status.HTTP_400_BAD_REQUEST)
-            
-        otp_obj.is_verified = True
-        otp_obj.save()
-        return Response({'message': 'Email verified successfully.'}, status=status.HTTP_200_OK)
+            if not email or not otp:
+                return Response({'error': 'Email and OTP are required.'}, status=status.HTTP_400_BAD_REQUEST)
+                
+            otp_obj = OTPVerification.objects.filter(email=email).first()
+            if not otp_obj:
+                return Response({'error': 'No OTP found for this email.'}, status=status.HTTP_400_BAD_REQUEST)
+                
+            if not otp_obj.is_valid():
+                return Response({'error': 'OTP has expired.'}, status=status.HTTP_400_BAD_REQUEST)
+                
+            if otp_obj.otp != otp:
+                return Response({'error': 'Invalid OTP.'}, status=status.HTTP_400_BAD_REQUEST)
+                
+            otp_obj.is_verified = True
+            otp_obj.save()
+            return Response({'message': 'Email verified successfully.'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Error in VerifyOTPAPI: {str(e)}")
+            return Response({
+                'error': 'Verification failed due to a server error.',
+                'detail': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class RegisterAPI(APIView):
     permission_classes = [AllowAny]

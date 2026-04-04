@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import CustomUser, PlatformSettings
+from .models import CustomUser, PlatformSettings, OTPVerification
 from moderator.models import CompanyProfile
 from django.db import transaction, IntegrityError
 from django.db.models import ProtectedError
@@ -163,3 +163,10 @@ class CompanyProfileAdmin(admin.ModelAdmin):
         self.message_user(request, f"{queryset.count()} recruiters deactivated.")
     deactivate_recruiters.short_description = "Deactivate selected recruiters"
 
+
+@admin.register(OTPVerification)
+class OTPVerificationAdmin(admin.ModelAdmin):
+    list_display = ('email', 'otp', 'created_at', 'is_verified')
+    readonly_fields = ('email', 'otp', 'created_at')
+    search_fields = ('email',)
+    list_filter = ('is_verified', 'created_at')
